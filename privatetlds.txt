@@ -1,5 +1,8 @@
 corp
 home
 internal
+intranet
+lan
 local
 mail
+private

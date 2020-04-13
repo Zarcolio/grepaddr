@@ -1,8 +1,12 @@
 corp
+example
 home
+home.arpa
 internal
 intranet
+invalid
 lan
 local
 mail
 private
+test

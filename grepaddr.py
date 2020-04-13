@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# -fqdn -srv -ipv4 -ipv6 -ipv4cidr -ipv6cidr -mac -url.bare -url.get -url.id
-
 import sys
 import os
 import re
@@ -150,6 +148,7 @@ sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract differen
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
 sArgParser.add_argument('--iana', help='Extract FQDNs with TLDs registered with IANA, use with -fqdn.', action="store_true")
 sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn.', action="store_true")
+#sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved.', action="store_true")
 #sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
 sArgParser.add_argument('-ipv4', help='Extract IP version 4 addresses.', action="store_true")
 sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR notation.', action="store_true")

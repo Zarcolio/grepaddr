@@ -6,57 +6,36 @@ grepaddr should be able to run with a default Kali Linux installation without in
 
 # Usage
 ```
-2cmd [-h] [-2 SECOND] [-t TIMEOUT] [-v] [-w WORKERS] cmd
+usage: grepaddr [-h] [-fqdn] [--iana] [--private] [-ipv4] [-cidr4] [-ipv6]
+                [-cidr6] [-mac] [-url] [-email] [-csv CSV]
 
-This script takes input lines from stdin and inserts them in the commands
-provided in the commands file. This way you can execute a certain command many
-times. For example you can take screen shots of URLs with cutycapt provided by
-output of another command.
-
-positional arguments:
-  cmd                   File containing one or more commands that should be
-                        executed. If no path is provided, a file in
-                        scriptdir/2cmd.xmpls is assumed. Use $2cmd$ or
-                        $2cmdsan$ in lowercase in each command line. $2cmd$ is
-                        replaced with each line from input. Use $cmdsan$ to
-                        sanitize a string for use in a filename.
+Use grepaddr to extract different kinds of addresses from stdin. If no
+arguments are given, addresses of all type are shown.
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -2 SECOND, --second SECOND
-                        Pass a second variable to the script to run.
-  -t TIMEOUT, --timeout TIMEOUT
-                        Wait x milliseconds between commands.
-  -v, --verbose         In green, show the commands that are created from 
-                        stdin and the provide config file.
-  -w WORKERS, --workers WORKERS
-                        Defines how many worker threads execute the commands
-                        in parallel.
+  -h, --help  show this help message and exit
+  -fqdn       Extract fully qualified domain names.
+  --iana      Extract FQDNs with TLDs registered with IANA, use with -fqdn.
+  --private   Extract FQDNs with TLDs for private use, use with -fqdn.
+  -ipv4       Extract IP version 4 addresses.
+  -cidr4      Extract IP version 4 addresses in CIDR notation.
+  -ipv6       Extract IP version 6 addresses.
+  -cidr6      Extract IP version 6 addresses in CIDR notation.
+  -mac        Extract MAC addresses.
+  -url        Extract URLS without query string.
+  -email      Extract URLS without query string.
+  -csv CSV    Save addresses found in this CSV file.
 ```
 # Examples
-For example, [Wappalyzer cli](https://www.npmjs.com/package/wappalyzer-cli) has no support for providing an input file.
-What if you have large sets of URLs to be analyzed with Wappalyzer?
-You can do it manually, or create a script/oneliner.
-But with 2cmd, it's possible run Wappalyzer with every URL that is provided through stdin.
-A large number of example .2cmd files is located in the 2cmd.xmpls directory.
-One for Wappalyzer is provided. It only contains:
+It's really easy to extract all supported addresses from stdin, just run:
 ```
-wappalyzer $2cmd$ > $2cmdsan$.json
+wget -qO - https://twitter.com|grepaddr -csv twitter.csv
 ```
-Want to analyze multiple URLs? Just create a file urls.txt:
+Want to extract addresses of certain type? Choose one of the options, for example -mac and run:
 ```
-https://www.google.com
-https://www.uber.com
-https://www.twitter.com
+wget -qO - https://nl.wikipedia.org/wiki/MAC-adres|grepaddr -mac
 ```
-And run:
+Want to extract FQDNs with a privacte TLD, just run:
 ```
-cat urls.txt | 2cmd wappalyzer.2cmd -v
+wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffix-for-private-network|grepaddr -fqdn --private
 ```
-This returns with standard output:
-```
-wappalyzer https://www.google.com > https-www.google.com.json
-wappalyzer https://www.uber.com > https-www.uber.com.json
-wappalyzer https://www.twitter.com > https-www.twitter.com.json
-```
-And 3 files containing the JSON output by Wappalyzer :)

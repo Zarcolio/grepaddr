@@ -123,17 +123,6 @@ def Urls(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
-"""
-def UrlsMailto(strInput):
-    regex = r"mailto:[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+(?:&?[^=&]*=[^=&]*)*"
-    matches = re.finditer(regex, strInput, re.IGNORECASE)
-    lMatches = []
-    for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
-        lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
-    return lMatches
-"""
-
 def Email(strInput):
     regex = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
@@ -148,8 +137,6 @@ sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract differen
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
 sArgParser.add_argument('--iana', help='Extract FQDNs with TLDs registered with IANA, use with -fqdn.', action="store_true")
 sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn.', action="store_true")
-#sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved.', action="store_true")
-#sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
 sArgParser.add_argument('-ipv4', help='Extract IP version 4 addresses.', action="store_true")
 sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-ipv6', help='Extract IP version 6 addresses.', action="store_true")
@@ -188,9 +175,6 @@ x = 0
 dResults = {}
 #Read from standard input:
 for strInput in sys.stdin:
-    # Some URLs have double encoded values, so 2 times "unquote":
-    #strInput = urllib.parse.unquote(strInput)
-    #strInput = urllib.parse.unquote(strInput)
 
     if aArguments.fqdn:
         lMatchesFqdn = Fqdn(strInput)
@@ -247,11 +231,6 @@ for strInput in sys.stdin:
         lMatchesUrl = Urls(strInput)
         for sUrl in lMatchesUrl:
                 dResults[sUrl] = "URL;" + sUrl
-
-#    if aArguments.url:
-#        lMatchesUrlsMailto = UrlsMailto(strInput)
-#        for sUrlsMailto in lMatchesUrlsMailto:
-#                print(sUrlsMailto)
 
     if aArguments.email:
         lMatchesEmail = Email(strInput)

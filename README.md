@@ -24,7 +24,7 @@ optional arguments:
   -mac        Extract MAC addresses.
   -url        Extract URLs (DNS based and IPv4).
   -email      Extract e-mail addresses.
-  -csv CSV    Save addresses found in this CSV file.
+  -csv CSV    Save addresses found to this CSV file.
 ```
 # Examples
 It's really easy to extract all supported addresses from stdin, just run:

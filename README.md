@@ -22,8 +22,8 @@ optional arguments:
   -ipv6       Extract IP version 6 addresses.
   -cidr6      Extract IP version 6 addresses in CIDR notation.
   -mac        Extract MAC addresses.
-  -url        Extract URLS without query string.
-  -email      Extract URLS without query string.
+  -url        Extract URLS (DNS based and IPv4).
+  -email      Extract e-mail addresses.
   -csv CSV    Save addresses found in this CSV file.
 ```
 # Examples

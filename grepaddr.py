@@ -124,6 +124,16 @@ def Urls(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
+def UrlsIpV6(strInput):
+    regex = r"(?:|(?<=\s))([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)(\[)(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\])(\])([a-zA-Z0-9\.\&\/\?\:@\-_=#%;])*(?=\s|)"
+    matches = re.finditer(regex, strInput, re.IGNORECASE)
+    lMatches = []
+    for matchNum, match in enumerate(matches, start=1):
+        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+        lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+    return lMatches
+        
+
 """
 def UrlsMailto(strInput):
     regex = r"mailto:[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+(?:&?[^=&]*=[^=&]*)*"
@@ -156,10 +166,10 @@ sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR n
 sArgParser.add_argument('-ipv6', help='Extract IP version 6 addresses.', action="store_true")
 sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
-sArgParser.add_argument('-url', help='Extract URLs (generic scheme, DNS based and IPv4).', action="store_true")
+sArgParser.add_argument('-url', help='Extract URLs.', action="store_true")
 sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
 sArgParser.add_argument('-csv', help='Save addresses found to this CSV file.')
-sArgParser.add_argument('-decode', help='Decode input n times before extracting FQDNs.')
+sArgParser.add_argument('-decode', help='Decode input this many times before extracting FQDNs.')
 
 aArguments=sArgParser.parse_args()
 
@@ -263,6 +273,11 @@ for strInput in sys.stdin:
             lMatchesUrl = Urls(strInput)
             for sUrl in lMatchesUrl:
                     dResults[sUrl] = "URL;" + sUrl
+    
+        if aArguments.url:
+            lMatchesUrl6 = UrlsIpV6(strInput)
+            for sUrl6 in lMatchesUrl6:
+                    dResults[sUrl6] = "URL;" + sUrl6
     
     #    if aArguments.url:
     #        lMatchesUrlsMailto = UrlsMailto(strInput)

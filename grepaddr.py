@@ -147,7 +147,7 @@ def Email(strInput):
 # Get some commandline arguments:
 sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all type are shown.')
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
-sArgParser.add_argument('--iana', help='Extract FQDNs with TLDs registered with IANA, use with -fqdn.', action="store_true")
+sArgParser.add_argument('--iana', help='Extract FQDNs with IANA registered TLDs, use with -fqdn.', action="store_true")
 sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn.', action="store_true")
 #sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved.', action="store_true")
 #sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
@@ -159,7 +159,7 @@ sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_tru
 sArgParser.add_argument('-url', help='Extract URLs (generic scheme, DNS based and IPv4).', action="store_true")
 sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
 sArgParser.add_argument('-csv', help='Save addresses found to this CSV file.')
-sArgParser.add_argument('-decode', help='Decode input n times before extracting.')
+sArgParser.add_argument('-decode', help='Decode input n times before extracting FQDNs.')
 
 aArguments=sArgParser.parse_args()
 
@@ -196,6 +196,7 @@ for strInput in sys.stdin:
 
     c = 0
     
+    # Default to never URL decode:
     if not aArguments.decode: 
         decodingRounds = 0
     else:
@@ -205,7 +206,7 @@ for strInput in sys.stdin:
         if c>0: 
             strInput = urllib.parse.unquote(strInput)
 
-        # To prevent 2F in hostnames originating from http:// -> %2F        
+        # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
         if decodingRounds == 1 or c == decodingRounds:
             if aArguments.fqdn:
                 lMatchesFqdn = Fqdn(strInput)

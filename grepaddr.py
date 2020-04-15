@@ -7,6 +7,7 @@ import re
 import argparse
 import signal
 import requests
+import urllib
 
 def signal_handler(sig, frame):
         print("\nCtrl-C detected, exiting...\n")
@@ -97,7 +98,7 @@ def Cidr4(strInput):
     return lMatches
 
 def IpV6(strInput):
-    regex = r"(?:^|(?<=\s))(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(?=\s|$)"
+    regex = r"(?:|(?<=\s))(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(?=\s|)"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
@@ -123,6 +124,17 @@ def Urls(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
+"""
+def UrlsMailto(strInput):
+    regex = r"mailto:[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+(?:&?[^=&]*=[^=&]*)*"
+    matches = re.finditer(regex, strInput, re.IGNORECASE)
+    lMatches = []
+    for matchNum, match in enumerate(matches, start=1):
+        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+        lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+    return lMatches
+"""
+
 def Email(strInput):
     regex = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
@@ -137,14 +149,17 @@ sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract differen
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
 sArgParser.add_argument('--iana', help='Extract FQDNs with TLDs registered with IANA, use with -fqdn.', action="store_true")
 sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn.', action="store_true")
+#sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved.', action="store_true")
+#sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
 sArgParser.add_argument('-ipv4', help='Extract IP version 4 addresses.', action="store_true")
 sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-ipv6', help='Extract IP version 6 addresses.', action="store_true")
 sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
-sArgParser.add_argument('-url', help='Extract URLS without query string.', action="store_true")
-sArgParser.add_argument('-email', help='Extract URLS without query string.', action="store_true")
-sArgParser.add_argument('-csv', help='Save addresses found in this CSV file.')
+sArgParser.add_argument('-url', help='Extract URLs (generic scheme, DNS based and IPv4).', action="store_true")
+sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
+sArgParser.add_argument('-csv', help='Save addresses found to this CSV file.')
+sArgParser.add_argument('-decode', help='Decode input n times before extracting.')
 
 aArguments=sArgParser.parse_args()
 
@@ -175,67 +190,88 @@ x = 0
 dResults = {}
 #Read from standard input:
 for strInput in sys.stdin:
+    # Some URLs have double encoded values, so 2 times "unquote":
+    #strInput = urllib.parse.unquote(strInput)
+    #strInput = urllib.parse.unquote(strInput)
 
-    if aArguments.fqdn:
-        lMatchesFqdn = Fqdn(strInput)
-        for sFqdn in lMatchesFqdn:
-            if aArguments.iana:
-                if EndsWithIanaTld(sFqdn):
-                    dResults[sFqdn] = "FQDN;" + sFqdn
-
-            if aArguments.private:
-                if EndsWithPrivateTld(sFqdn):
-                    dResults[sFqdn] = "FQDN;" + sFqdn
-                
-            if not aArguments.iana and not aArguments.private:
-                    dResults[sFqdn] = "FQDN;" + sFqdn
-
-    if aArguments.mac:
-        lMatchesMac1 = MacAddress1(strInput)
-        for sMac1 in lMatchesMac1:
-            dResults[sMac1] = "MAC;" + sMac1
+    c = 0
     
-        lMatchesMac2 = MacAddress2(strInput)
-        for sMac2 in lMatchesMac2:
-            dResults[sMac2] = "MAC;" + sMac2
+    if not aArguments.decode: 
+        decodingRounds = 0
+    else:
+        decodingRounds = int(aArguments.decode)
 
-    if aArguments.cidr4:
-        lMatchesCidr4 = Cidr4(strInput)
-        for sCidr4 in lMatchesCidr4:
-            dResults[sCidr4] = "IPv4 CIDR;" + sCidr4
+    for c in range(0, decodingRounds+1):
+        if c>0: 
+            strInput = urllib.parse.unquote(strInput)
 
-    if aArguments.ipv4:
-        lMatchesIpV4 = IpV4(strInput)
-        for sIpV4 in lMatchesIpV4:
-            if aArguments.cidr4:
-                if [s for s in lMatchesCidr4 if sIpV4 + "/" not in s] :
+        # To prevent 2F in hostnames originating from http:// -> %2F        
+        if decodingRounds == 1 or c == decodingRounds:
+            if aArguments.fqdn:
+                lMatchesFqdn = Fqdn(strInput)
+                for sFqdn in lMatchesFqdn:
+                    if aArguments.iana:
+                        if EndsWithIanaTld(sFqdn):
+                            dResults[sFqdn] = "FQDN;" + sFqdn
+        
+                    if aArguments.private:
+                        if EndsWithPrivateTld(sFqdn):
+                            dResults[sFqdn] = "FQDN;" + sFqdn
+                        
+                    if not aArguments.iana and not aArguments.private:
+                            dResults[sFqdn] = "FQDN;" + sFqdn
+    
+        if aArguments.mac:
+            lMatchesMac1 = MacAddress1(strInput)
+            for sMac1 in lMatchesMac1:
+                dResults[sMac1] = "MAC;" + sMac1
+        
+            lMatchesMac2 = MacAddress2(strInput)
+            for sMac2 in lMatchesMac2:
+                dResults[sMac2] = "MAC;" + sMac2
+    
+        if aArguments.cidr4:
+            lMatchesCidr4 = Cidr4(strInput)
+            for sCidr4 in lMatchesCidr4:
+                dResults[sCidr4] = "IPv4 CIDR;" + sCidr4
+    
+        if aArguments.ipv4:
+            lMatchesIpV4 = IpV4(strInput)
+            for sIpV4 in lMatchesIpV4:
+                if aArguments.cidr4:
+                    if [s for s in lMatchesCidr4 if sIpV4 + "/" not in s] :
+                        dResults[sIpV4] = "IPv4;" + sIpV4
+                else:
                     dResults[sIpV4] = "IPv4;" + sIpV4
-            else:
-                dResults[sIpV4] = "IPv4;" + sIpV4
-
-    if aArguments.cidr6:
-        lMatchesCidr6 = Cidr6(strInput)
-        for sCidr6 in lMatchesCidr6:
-            dResults[sCidr6] = "IPv6 CIDR;" + sCidr6
-
-    if aArguments.ipv6:
-        lMatchesIpV6 = IpV6(strInput)
-        for sIpV6 in lMatchesIpV6:
-            if aArguments.cidr6:
-                if [s for s in lMatchesCidr6 if sIpV6 + "/" not in s] :
+    
+        if aArguments.cidr6:
+            lMatchesCidr6 = Cidr6(strInput)
+            for sCidr6 in lMatchesCidr6:
+                dResults[sCidr6] = "IPv6 CIDR;" + sCidr6
+    
+        if aArguments.ipv6:
+            lMatchesIpV6 = IpV6(strInput)
+            for sIpV6 in lMatchesIpV6:
+                if aArguments.cidr6:
+                    if [s for s in lMatchesCidr6 if sIpV6 + "/" not in s] :
+                        dResults[sIpV6] = "IPv6;" + sIpV6
+                else:
                     dResults[sIpV6] = "IPv6;" + sIpV6
-            else:
-                dResults[sIpV6] = "IPv6;" + sIpV6
-
-    if aArguments.url:
-        lMatchesUrl = Urls(strInput)
-        for sUrl in lMatchesUrl:
-                dResults[sUrl] = "URL;" + sUrl
-
-    if aArguments.email:
-        lMatchesEmail = Email(strInput)
-        for sEmail in lMatchesEmail:
-            dResults[sEmail] = "E-mail;" + sEmail
+    
+        if aArguments.url:
+            lMatchesUrl = Urls(strInput)
+            for sUrl in lMatchesUrl:
+                    dResults[sUrl] = "URL;" + sUrl
+    
+    #    if aArguments.url:
+    #        lMatchesUrlsMailto = UrlsMailto(strInput)
+    #        for sUrlsMailto in lMatchesUrlsMailto:
+    #                print(sUrlsMailto)
+    
+        if aArguments.email:
+            lMatchesEmail = Email(strInput)
+            for sEmail in lMatchesEmail:
+                dResults[sEmail] = "E-mail;" + sEmail
     
 for item in dResults.keys():
     print(item)

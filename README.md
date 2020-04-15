@@ -15,7 +15,7 @@ arguments are given, addresses of all type are shown.
 optional arguments:
   -h, --help      show this help message and exit
   -fqdn           Extract fully qualified domain names.
-  --iana          Extract FQDNs with TLDs registered with IANA, use with -fqdn.
+  --iana          Extract FQDNs with IANA registered TLDs, use with -fqdn.
   --private       Extract FQDNs with TLDs for private use, use with -fqdn.
   -ipv4           Extract IP version 4 addresses.
   -cidr4          Extract IP version 4 addresses in CIDR notation.
@@ -25,7 +25,7 @@ optional arguments:
   -url            Extract URLs (generic scheme, DNS based and IPv4).
   -email          Extract e-mail addresses.
   -csv CSV        Save addresses found to this CSV file.
-  -decode DECODE  Decode input n times before extracting.
+  -decode DECODE  Decode input n times before extracting FQDNs.
 
 ```
 # Examples

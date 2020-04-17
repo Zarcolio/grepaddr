@@ -250,11 +250,11 @@ for strInput in sys.stdin:
             lMatchesIpV4 = IpV4(strInput)
             for sIpV4 in lMatchesIpV4:
                 if aArguments.cidr4:
-                    if [s for s in lMatchesCidr4 if sIpV4 + "/" not in s] :
-                        dResults[sIpV4] = "IPv4;" + sIpV4
+                    #if [s for s in lMatchesCidr4 if sIpV4 + "/" not in s] :
+                    dResults[sIpV4] = "IPv4;" + sIpV4
                 else:
                     dResults[sIpV4] = "IPv4;" + sIpV4
-    
+
         if aArguments.cidr6:
             lMatchesCidr6 = Cidr6(strInput)
             for sCidr6 in lMatchesCidr6:
@@ -264,8 +264,8 @@ for strInput in sys.stdin:
             lMatchesIpV6 = IpV6(strInput)
             for sIpV6 in lMatchesIpV6:
                 if aArguments.cidr6:
-                    if [s for s in lMatchesCidr6 if sIpV6 + "/" not in s] :
-                        dResults[sIpV6] = "IPv6;" + sIpV6
+                    #if [s for s in lMatchesCidr6 if sIpV6 + "/" not in s] :
+                    dResults[sIpV6] = "IPv6;" + sIpV6
                 else:
                     dResults[sIpV6] = "IPv6;" + sIpV6
     

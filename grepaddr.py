@@ -51,6 +51,16 @@ def Fqdn(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
+def Srv(strInput):
+    regex = r"((?!-)(_[-A-Z\d]{1,62}\.){1,2}[-A-Z\d]{1,62}(?<!-)\.)+[A-Z]{1,62}"
+    matches = re.finditer(regex, strInput, re.IGNORECASE)
+    lMatches = []
+    for matchNum, match in enumerate(matches, start=1):
+        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+        lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+    return lMatches
+
+
 def EndsWithIanaTld(sUrl):
     for sTld in lIanaTlds:
         if sUrl.endswith("." + sTld):
@@ -60,16 +70,6 @@ def EndsWithPrivateTld(sUrl):
     for sTld in lPrivateTlds:
         if sUrl.endswith("." + sTld):
             return sUrl
-
-def MacAddress1(strInput):
-    regex = r"((?!-)(_[-A-Z\d]{1,62}\.){1,2}[-A-Z\d]{1,62}(?<!-)\.)+[A-Z]{1,62}"
-    matches = re.finditer(regex, strInput, re.IGNORECASE)
-    lMatches = []
-    for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
-        lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
-    return lMatches
-
 
 def MacAddress1(strInput):
     regex = r"([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])"
@@ -170,7 +170,7 @@ sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', a
 sArgParser.add_argument('--iana', help='Extract FQDNs with IANA registered TLDs, use with -fqdn.', action="store_true")
 sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn.', action="store_true")
 #sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved.', action="store_true")
-#sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
+sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
 sArgParser.add_argument('-ipv4', help='Extract IP version 4 addresses.', action="store_true")
 sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-ipv6', help='Extract IP version 6 addresses.', action="store_true")
@@ -178,8 +178,8 @@ sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR n
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
 sArgParser.add_argument('-url', help='Extract URLs.', action="store_true")
 sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
-sArgParser.add_argument('-csv', help='Save addresses found to this CSV file.')
-sArgParser.add_argument('-decode', help='Decode input this many times before extracting FQDNs.')
+sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
+sArgParser.add_argument('-decode', metavar="<rounds>", help='Decode input this many times before extracting FQDNs.')
 
 aArguments=sArgParser.parse_args()
 
@@ -241,12 +241,17 @@ for strInput in sys.stdin:
                         
                     if not aArguments.iana and not aArguments.private:
                             dResults[sFqdn] = "FQDN;" + sFqdn
-    
+
+        if aArguments.srv:
+            lMatchesSrv = Srv(strInput)
+            for sSrv in lMatchesSrv:
+                dResults[sSrv] = "SRV;" + sSrv
+
         if aArguments.mac:
             lMatchesMac1 = MacAddress1(strInput)
             for sMac1 in lMatchesMac1:
                 dResults[sMac1] = "MAC;" + sMac1
-        
+
             lMatchesMac2 = MacAddress2(strInput)
             for sMac2 in lMatchesMac2:
                 dResults[sMac2] = "MAC;" + sMac2

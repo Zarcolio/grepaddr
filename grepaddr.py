@@ -62,6 +62,16 @@ def EndsWithPrivateTld(sUrl):
             return sUrl
 
 def MacAddress1(strInput):
+    regex = r"((?!-)(_[-A-Z\d]{1,62}\.){1,2}[-A-Z\d]{1,62}(?<!-)\.)+[A-Z]{1,62}"
+    matches = re.finditer(regex, strInput, re.IGNORECASE)
+    lMatches = []
+    for matchNum, match in enumerate(matches, start=1):
+        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+        lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+    return lMatches
+
+
+def MacAddress1(strInput):
     regex = r"([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []

@@ -189,7 +189,7 @@ if (aArguments.iana and not aArguments.fqdn) or (aArguments.private and not aArg
     sArgParser.print_help()
     sys.exit(2)
 
-if aArguments.fqdn == False and aArguments.iana == False and aArguments.private == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.email == False:
+if aArguments.fqdn == False and aArguments.iana == False and aArguments.srv == False and aArguments.private == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.email == False:
     # and aArguments.srv == False 
     aArguments.fqdn = True
     aArguments.iana = True

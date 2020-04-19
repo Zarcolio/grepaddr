@@ -47,7 +47,6 @@ def Fqdn(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -56,7 +55,6 @@ def Srv(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -76,7 +74,6 @@ def MacAddress1(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -85,7 +82,6 @@ def MacAddress2(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -94,7 +90,6 @@ def IpV4(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -103,7 +98,6 @@ def Cidr4(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -112,7 +106,6 @@ def IpV6(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -121,7 +114,6 @@ def Cidr6(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -130,7 +122,6 @@ def Urls(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -139,10 +130,17 @@ def UrlsIpV6(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
-        
+
+# To do: catch: <href="//abs.twimg.com/favicons/favicon.ico>
+def RelUrls(strInput):
+    regex = r"(?:url\(|<(?:link|script|img)[^>]+(?:[<\s]src|href)\s*=\s*)(?!['\"]?(?:data|([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)))['\"]?([^'\"\)\s>]+)"
+    matches = re.finditer(regex, strInput, re.IGNORECASE)
+    lMatches = []
+    for matchNum, match in enumerate(matches, start=1):
+        lMatches.append(match.group(2))
+    return lMatches
 
 """
 def UrlsMailto(strInput):
@@ -160,7 +158,6 @@ def Email(strInput):
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
@@ -177,6 +174,7 @@ sArgParser.add_argument('-ipv6', help='Extract IP version 6 addresses.', action=
 sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
 sArgParser.add_argument('-url', help='Extract URLs.', action="store_true")
+sArgParser.add_argument('-relurl', help='Extract relative URLs.', action="store_true")
 sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
 sArgParser.add_argument('-decode', metavar="<rounds>", help='Decode input this many times before extracting FQDNs.')
@@ -189,7 +187,7 @@ if (aArguments.iana and not aArguments.fqdn) or (aArguments.private and not aArg
     sArgParser.print_help()
     sys.exit(2)
 
-if aArguments.fqdn == False and aArguments.iana == False and aArguments.srv == False and aArguments.private == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.email == False:
+if aArguments.relurl == False and aArguments.fqdn == False and aArguments.iana == False and aArguments.srv == False and aArguments.private == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.email == False:
     # and aArguments.srv == False 
     aArguments.fqdn = True
     aArguments.iana = True
@@ -201,6 +199,7 @@ if aArguments.fqdn == False and aArguments.iana == False and aArguments.srv == F
     aArguments.cidr6 = True
     aArguments.mac = True
     aArguments.url = True
+    aArguments.relurl = True
     aArguments.email = True
 
 lIanaTlds = GetIanaTlds()
@@ -288,13 +287,18 @@ for strInput in sys.stdin:
             lMatchesUrl = Urls(strInput)
             for sUrl in lMatchesUrl:
                     dResults[sUrl] = "URL;" + sUrl
-    
+
         if aArguments.url:
             lMatchesUrl6 = UrlsIpV6(strInput)
             for sUrl6 in lMatchesUrl6:
-                    dResults[sUrl6] = "URL;" + sUrl6
-    
-    #    if aArguments.url:
+                dResults[sUrl6] = "URL;" + sUrl6
+
+        if aArguments.relurl:
+            lMatchesRelUrl = RelUrls(strInput)
+            for sRelUrl in lMatchesRelUrl:
+                dResults[sRelUrl] = "URL;" + sRelUrl
+
+        #    if aArguments.url:
     #        lMatchesUrlsMailto = UrlsMailto(strInput)
     #        for sUrlsMailto in lMatchesUrlsMailto:
     #                print(sUrlsMailto)

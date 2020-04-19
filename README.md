@@ -24,6 +24,7 @@ optional arguments:
   -cidr6          Extract IP version 6 addresses in CIDR notation.
   -mac            Extract MAC addresses.
   -url            Extract URLs.
+  -relurl         Extract relative URLs.
   -email          Extract e-mail addresses.
   -csv CSV        Save addresses found to this CSV file.
   -decode DECODE  Decode input n times before extracting FQDNs.

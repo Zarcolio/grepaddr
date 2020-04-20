@@ -6,9 +6,11 @@ Grepaddr should be able to run with a default Kali Linux installation without in
 
 # Usage
 ```
-usage: grepaddr [-h] [-fqdn] [--iana] [--private] [-srv] [-ipv4] [-cidr4] [-ipv6] [-cidr6] [-mac] [-url] [-relurl] [-email] [-csv <file>] [-decode <rounds>] [-unslash <rounds>]
+usage: grepaddr [-h] [-fqdn] [--iana] [--private] [-srv] [-ipv4] [-cidr4] [-ipv6] [-cidr6] [-mac] [-url]
+[-relurl] [-email] [-csv <file>] [-decode <rounds>] [-unslash <rounds>]
 
-Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all type are shown.
+Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all 
+types are shown.
 
 optional arguments:
   -h, --help         show this help message and exit

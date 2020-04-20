@@ -25,15 +25,15 @@ ESCAPE_SEQUENCE_RE = re.compile(r'''
     | \\[\\'"abfnrtv]  # Single-character escapes
     )''', re.UNICODE | re.VERBOSE)
 
-def decode_escapes(s):
+def unslash_escapes(s):
     # replace = hack because / and . cannot be unescaped:
     s = s.replace("\/", "/")
     s = s.replace("\.", ".")
-    
-    def decode_match(match):
+
+    def unslash_match(match):
         return codecs.decode(match.group(0), 'unicode-escape')
 
-    return ESCAPE_SEQUENCE_RE.sub(decode_match, s)
+    return ESCAPE_SEQUENCE_RE.sub(unslash_match, s)
 
 def GetIanaTlds():
     # Get official TLD:
@@ -155,7 +155,7 @@ def UrlsIpV6(strInput):
 
 # To do: catch: <href="//abs.twimg.com/favicons/favicon.ico>
 def RelUrls(strInput):
-    regex = r"(?:url\(|<(?:link|script|img)[^>]+(?:[<\s]src|href)\s*=\s*)(?!['\"]?(?:data|([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)))['\"]?([^'\"\)\s>]+)"
+    regex = r"(?:url\(|<(?:audio|embed|iframe|input|script|source|track|video|form|link|script|img|area|base)[^>]+(?:[<\s]src|href|action)\s*=\s*)(?!['\"]?(?:data|([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)))['\"]?([^'\"\)\s>]+)"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
@@ -171,7 +171,7 @@ def Email(strInput):
     return lMatches
 
 # Get some commandline arguments:
-sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all type are shown.')
+sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all types are shown.')
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
 sArgParser.add_argument('--iana', help='Extract FQDNs with IANA registered TLDs, use with -fqdn.', action="store_true")
 sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn.', action="store_true")
@@ -260,7 +260,7 @@ for strInput in sys.stdin:
         for iCountUnslash in range(0, UnslashRounds + 1):
             if iCountUnslash > 0:
                 #strInput = decode(strInput)
-                strInput = decode_escapes(strInput)
+                strInput = unslash_escapes(strInput)
 
             # To prevent remants in hostnames originating from escaped characters:
             if UnslashRounds == 1 or iCountUnslash == UnslashRounds:

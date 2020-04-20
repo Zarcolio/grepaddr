@@ -8,12 +8,32 @@ import argparse
 import signal
 import requests
 import urllib
+import codecs
 
 def signal_handler(sig, frame):
         print("\nCtrl-C detected, exiting...\n")
         sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
+
+ESCAPE_SEQUENCE_RE = re.compile(r'''
+    ( \\U........      # 8-digit hex escapes
+    | \\u....          # 4-digit hex escapes
+    | \\x..            # 2-digit hex escapes
+    | \\[0-7]{1,3}     # Octal escapes
+    | \\N\{[^}]+\}     # Unicode characters by name
+    | \\[\\'"abfnrtv]  # Single-character escapes
+    )''', re.UNICODE | re.VERBOSE)
+
+def decode_escapes(s):
+    # replace = hack because / and . cannot be unescaped:
+    s = s.replace("\/", "/")
+    s = s.replace("\.", ".")
+    
+    def decode_match(match):
+        return codecs.decode(match.group(0), 'unicode-escape')
+
+    return ESCAPE_SEQUENCE_RE.sub(decode_match, s)
 
 def GetIanaTlds():
     # Get official TLD:
@@ -162,11 +182,12 @@ sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR n
 sArgParser.add_argument('-ipv6', help='Extract IP version 6 addresses.', action="store_true")
 sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
-sArgParser.add_argument('-url', help='Extract URLs.', action="store_true")
+sArgParser.add_argument('-url', help='Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).', action="store_true")
 sArgParser.add_argument('-relurl', help='Extract relative URLs.', action="store_true")
 sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
-sArgParser.add_argument('-decode', metavar="<rounds>", help='Decode input this many times before extracting FQDNs.')
+sArgParser.add_argument('-decode', metavar="<rounds>", help='URL decode input this many times before extracting FQDNs.')
+sArgParser.add_argument('-unslash', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
 
 aArguments=sArgParser.parse_args()
 
@@ -202,20 +223,19 @@ for strInput in sys.stdin:
     #strInput = urllib.parse.unquote(strInput)
     #strInput = urllib.parse.unquote(strInput)
 
-    c = 0
-    
+    iCountDecode = 0
     # Default to never URL decode:
     if not aArguments.decode: 
         decodingRounds = 0
     else:
         decodingRounds = int(aArguments.decode)
 
-    for c in range(0, decodingRounds+1):
-        if c>0: 
+    for iCountDecode in range(0, decodingRounds+1):
+        if iCountDecode>0:
             strInput = urllib.parse.unquote(strInput)
 
         # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
-        if decodingRounds == 1 or c == decodingRounds:
+        if decodingRounds == 1 or iCountDecode == decodingRounds:
             if aArguments.fqdn:
                 lMatchesFqdn = Fqdn(strInput)
                 for sFqdn in lMatchesFqdn:
@@ -229,6 +249,36 @@ for strInput in sys.stdin:
                         
                     if not aArguments.iana and not aArguments.private:
                             dResults[sFqdn] = "FQDN;" + sFqdn
+
+        iCountUnslash = 0
+        # Default to never unslash:
+        if not aArguments.unslash:
+            UnslashRounds = 0
+        else:
+            UnslashRounds = int(aArguments.unslash)
+
+        for iCountUnslash in range(0, UnslashRounds + 1):
+            if iCountUnslash > 0:
+                #strInput = decode(strInput)
+                strInput = decode_escapes(strInput)
+
+            # To prevent remants in hostnames originating from escaped characters:
+            if UnslashRounds == 1 or iCountUnslash == UnslashRounds:
+                if aArguments.fqdn:
+                    lMatchesFqdn = Fqdn(strInput)
+                    for sFqdn in lMatchesFqdn:
+                        if aArguments.iana:
+                            if EndsWithIanaTld(sFqdn):
+                                dResults[sFqdn] = "FQDN;" + sFqdn
+
+                        if aArguments.private:
+                            if EndsWithPrivateTld(sFqdn):
+                                dResults[sFqdn] = "FQDN;" + sFqdn
+
+                        if not aArguments.iana and not aArguments.private:
+                            dResults[sFqdn] = "FQDN;" + sFqdn
+
+
 
         if aArguments.srv:
             lMatchesSrv = Srv(strInput)

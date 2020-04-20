@@ -118,7 +118,7 @@ def Cidr6(strInput):
     return lMatches
 
 def Urls(strInput):
-    regex = r"([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#%;])*"
+    regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto\:)[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;])*"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
@@ -141,17 +141,6 @@ def RelUrls(strInput):
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append(match.group(2))
     return lMatches
-
-"""
-def UrlsMailto(strInput):
-    regex = r"mailto:[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+(?:&?[^=&]*=[^=&]*)*"
-    matches = re.finditer(regex, strInput, re.IGNORECASE)
-    lMatches = []
-    for matchNum, match in enumerate(matches, start=1):
-        #print ("{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
-        lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
-    return lMatches
-"""
 
 def Email(strInput):
     regex = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"

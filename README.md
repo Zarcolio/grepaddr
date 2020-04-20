@@ -23,7 +23,7 @@ optional arguments:
   -ipv6           Extract IP version 6 addresses.
   -cidr6          Extract IP version 6 addresses in CIDR notation.
   -mac            Extract MAC addresses.
-  -url            Extract URLs.
+  -url            Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).
   -relurl         Extract relative URLs.
   -email          Extract e-mail addresses.
   -csv CSV        Save addresses found to this CSV file.

@@ -34,7 +34,10 @@ def unslash_escapes(s):
     s = s.replace("\;", ";")
 
     def unslash_match(match):
-        return codecs.decode(match.group(0), 'unicode-escape')
+        try:
+            return codecs.decode(match.group(0), 'unicode-escape')
+        except:
+            pass
 
     return ESCAPE_SEQUENCE_RE.sub(unslash_match, s)
 
@@ -80,6 +83,7 @@ def Srv(strInput):
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
+
 
 def EndsWithIanaTld(sUrl):
     for sTld in lIanaTlds:
@@ -163,6 +167,7 @@ def RelUrls(strInput):
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append(match.group(2))
         #lMatches.append("{match}".format(matchNum=matchNum, start=match.start(), end=match.end(), match=match.group()))
+
     return lMatches
 
 def Email(strInput):
@@ -227,7 +232,7 @@ dResults = {}
 for strInput in sys.stdin:
     iCountDecode = 0
     # Default to never URL decode:
-    if not aArguments.decode: 
+    if not aArguments.decode:
         decodingRounds = 0
     else:
         decodingRounds = int(aArguments.decode)
@@ -308,12 +313,12 @@ for strInput in sys.stdin:
             lMatchesMac2 = MacAddress2(strInput)
             for sMac2 in lMatchesMac2:
                 dResults[sMac2] = "MAC;" + sMac2
-    
+
         if aArguments.cidr4:
             lMatchesCidr4 = Cidr4(strInput)
             for sCidr4 in lMatchesCidr4:
                 dResults[sCidr4] = "IPv4 CIDR;" + sCidr4
-    
+
         if aArguments.ipv4:
             lMatchesIpV4 = IpV4(strInput)
             for sIpV4 in lMatchesIpV4:
@@ -327,7 +332,7 @@ for strInput in sys.stdin:
             lMatchesCidr6 = Cidr6(strInput)
             for sCidr6 in lMatchesCidr6:
                 dResults[sCidr6] = "IPv6 CIDR;" + sCidr6
-    
+
         if aArguments.ipv6:
             lMatchesIpV6 = IpV6(strInput)
             for sIpV6 in lMatchesIpV6:
@@ -336,7 +341,7 @@ for strInput in sys.stdin:
                     dResults[sIpV6] = "IPv6;" + sIpV6
                 else:
                     dResults[sIpV6] = "IPv6;" + sIpV6
-    
+
         if aArguments.url:
             lMatchesUrl = Urls(strInput)
             for sUrl in lMatchesUrl:
@@ -356,7 +361,7 @@ for strInput in sys.stdin:
             lMatchesEmail = Email(strInput)
             for sEmail in lMatchesEmail:
                 dResults[sEmail] = "E-mail;" + sEmail
-    
+
 for item in dResults.keys():
     print(item)
 

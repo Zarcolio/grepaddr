@@ -47,5 +47,5 @@ wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffi
 ```
 Want to extract FQDNs and show only resolved FQDNs URLs needed to be decoded first, just run:
 ```
-wget -qO - https://twitter.com|grepaddr -fqdn --resolve --decode
+wget -qO - https://twitter.com|grepaddr -fqdn --resolve --decode 1
 ```

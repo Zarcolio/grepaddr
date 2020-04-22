@@ -47,5 +47,5 @@ wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffi
 ```
 Want to extract FQDNs and show only resolved FQDNs, just run:
 ```
-wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffix-for-private-network|grepaddr -fqdn --resolve
+wget -qO - https://twitter.com|grepaddr -fqdn --resolve
 ```

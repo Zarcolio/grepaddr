@@ -1,5 +1,5 @@
 # About grepaddr
-Grepaddr takes input from stdin and extracts different kinds of addresses from stdin.x
+Grepaddr takes input from stdin and extracts different kinds of addresses from stdin.
 
 # Install
 Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)

@@ -43,3 +43,7 @@ Want to extract FQDNs with a privacte TLD, just run:
 ```
 wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffix-for-private-network|grepaddr -fqdn --private
 ```
+Want to extract FQDNs and show only resolved FQDNs, just run:
+```
+wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffix-for-private-network|grepaddr -fqdn --resolve
+```

@@ -81,7 +81,6 @@ def Srv(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
-
 def EndsWithIanaTld(sUrl):
     for sTld in lIanaTlds:
         if sUrl.endswith("." + sTld):
@@ -164,7 +163,6 @@ def RelUrls(strInput):
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append(match.group(2))
         #lMatches.append("{match}".format(matchNum=matchNum, start=match.start(), end=match.end(), match=match.group()))
-
     return lMatches
 
 def Email(strInput):

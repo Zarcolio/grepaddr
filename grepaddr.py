@@ -9,6 +9,7 @@ import signal
 import requests
 import urllib
 import codecs
+import socket
 
 def signal_handler(sig, frame):
         print("\nCtrl-C detected, exiting...\n")
@@ -29,6 +30,8 @@ def unslash_escapes(s):
     # replace = hack because / and . cannot be unescaped:
     s = s.replace("\/", "/")
     s = s.replace("\.", ".")
+    s = s.replace("\:", ":")
+    s = s.replace("\;", ";")
 
     def unslash_match(match):
         return codecs.decode(match.group(0), 'unicode-escape')
@@ -155,11 +158,13 @@ def UrlsIpV6(strInput):
 
 # To do: catch: <href="//abs.twimg.com/favicons/favicon.ico>
 def RelUrls(strInput):
-    regex = r"(?:url\(|<(?:audio|embed|iframe|input|script|source|track|video|form|link|script|img|area|base)[^>]+(?:[<\s]src|href|action)\s*=\s*)(?!['\"]?(?:data|([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)))['\"]?([^'\"\)\s>]+)"
+    regex = r"(?:url\(|<(?:applet|area|audio|base|blockquote|body|button|command|del|embed|form|frame|head|html|iframe|img|image|ins|link|object|script|q|source|track|video)[^>]+(?:[<\s]action|background|cite|classid|codebase|data|formaction|href|icon|longdesc|manifest|poster|profile|src|usemap)\s*=\s*)(?!['\"]?(?:data|([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)))['\"]?([^'\"\)\s>]+)"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append(match.group(2))
+        #lMatches.append("{match}".format(matchNum=matchNum, start=match.start(), end=match.end(), match=match.group()))
+
     return lMatches
 
 def Email(strInput):
@@ -173,9 +178,9 @@ def Email(strInput):
 # Get some commandline arguments:
 sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all types are shown.')
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
-sArgParser.add_argument('--iana', help='Extract FQDNs with IANA registered TLDs, use with -fqdn.', action="store_true")
-sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn.', action="store_true")
-#sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved.', action="store_true")
+sArgParser.add_argument('--iana', help='Extract FQDNs with IANA registered TLDs, use with -fqdn. No impact on other options.', action="store_true")
+sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.', action="store_true")
+sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved. Cannot be used together with --iana or --private. No impact on other options.', action="store_true")
 sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
 sArgParser.add_argument('-ipv4', help='Extract IP version 4 addresses.', action="store_true")
 sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR notation.', action="store_true")
@@ -191,17 +196,8 @@ sArgParser.add_argument('-unslash', metavar="<rounds>", help='Unescape slashes w
 
 aArguments=sArgParser.parse_args()
 
-if (aArguments.iana and not aArguments.fqdn) or (aArguments.private and not aArguments.fqdn):
-    print("Arguments --iana and --private are used in conjuction with -fqdn.")
-    print()
-    sArgParser.print_help()
-    sys.exit(2)
-
-if aArguments.relurl == False and aArguments.fqdn == False and aArguments.iana == False and aArguments.srv == False and aArguments.private == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.email == False:
-    # and aArguments.srv == False 
+if aArguments.fqdn == False and aArguments.srv == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.relurl == False and aArguments.email == False:
     aArguments.fqdn = True
-    aArguments.iana = True
-    aArguments.private = True
     aArguments.srv = True
     aArguments.ipv4 = True
     aArguments.cidr4 = True
@@ -212,6 +208,18 @@ if aArguments.relurl == False and aArguments.fqdn == False and aArguments.iana =
     aArguments.relurl = True
     aArguments.email = True
 
+if (aArguments.iana or aArguments.private) and (aArguments.resolve):
+    print("Arguments --iana and --private cannot be used in conjuction with -resolves.")
+    print()
+    sArgParser.print_help()
+    sys.exit(2)
+
+if (aArguments.iana and not aArguments.fqdn) or (aArguments.private and not aArguments.fqdn):
+    print("Arguments --iana and --private are used in conjuction with -fqdn.")
+    print()
+    sArgParser.print_help()
+    sys.exit(2)
+
 lIanaTlds = GetIanaTlds()
 lPrivateTlds = GetPrivateTlds()
 
@@ -219,10 +227,6 @@ x = 0
 dResults = {}
 #Read from standard input:
 for strInput in sys.stdin:
-    # Some URLs have double encoded values, so 2 times "unquote":
-    #strInput = urllib.parse.unquote(strInput)
-    #strInput = urllib.parse.unquote(strInput)
-
     iCountDecode = 0
     # Default to never URL decode:
     if not aArguments.decode: 
@@ -236,37 +240,17 @@ for strInput in sys.stdin:
 
         # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
         if decodingRounds == 1 or iCountDecode == decodingRounds:
+            # Changes in this section should also be done in the unslash section
             if aArguments.fqdn:
                 lMatchesFqdn = Fqdn(strInput)
                 for sFqdn in lMatchesFqdn:
-                    if aArguments.iana:
-                        if EndsWithIanaTld(sFqdn):
+                    if aArguments.resolve:
+                        try:
+                            lResolvedFqdn = socket.gethostbyname(sFqdn)    # lResolvedFqdn is not used.
                             dResults[sFqdn] = "FQDN;" + sFqdn
-        
-                    if aArguments.private:
-                        if EndsWithPrivateTld(sFqdn):
-                            dResults[sFqdn] = "FQDN;" + sFqdn
-                        
-                    if not aArguments.iana and not aArguments.private:
-                            dResults[sFqdn] = "FQDN;" + sFqdn
-
-        iCountUnslash = 0
-        # Default to never unslash:
-        if not aArguments.unslash:
-            UnslashRounds = 0
-        else:
-            UnslashRounds = int(aArguments.unslash)
-
-        for iCountUnslash in range(0, UnslashRounds + 1):
-            if iCountUnslash > 0:
-                #strInput = decode(strInput)
-                strInput = unslash_escapes(strInput)
-
-            # To prevent remants in hostnames originating from escaped characters:
-            if UnslashRounds == 1 or iCountUnslash == UnslashRounds:
-                if aArguments.fqdn:
-                    lMatchesFqdn = Fqdn(strInput)
-                    for sFqdn in lMatchesFqdn:
+                        except:
+                            pass
+                    else:
                         if aArguments.iana:
                             if EndsWithIanaTld(sFqdn):
                                 dResults[sFqdn] = "FQDN;" + sFqdn
@@ -278,7 +262,40 @@ for strInput in sys.stdin:
                         if not aArguments.iana and not aArguments.private:
                             dResults[sFqdn] = "FQDN;" + sFqdn
 
+        iCountUnslash = 0
+        # Default to never unslash:
+        if not aArguments.unslash:
+            UnslashRounds = 0
+        else:
+            UnslashRounds = int(aArguments.unslash)
 
+        for iCountUnslash in range(0, UnslashRounds + 1):
+            if iCountUnslash > 0:
+                strInput = unslash_escapes(strInput)
+
+            # To prevent remants in hostnames originating from escaped characters:
+            if UnslashRounds == 1 or iCountUnslash == UnslashRounds:
+                # Implement same changes as in the decode section:
+                if aArguments.fqdn:
+                    lMatchesFqdn = Fqdn(strInput)
+                    for sFqdn in lMatchesFqdn:
+                        if aArguments.resolve:
+                            try:
+                                lResolvedFqdn = socket.gethostbyname(sFqdn)  # lResolvedFqdn is not used.
+                                dResults[sFqdn] = "FQDN;" + sFqdn
+                            except:
+                                pass
+                        else:
+                            if aArguments.iana:
+                                if EndsWithIanaTld(sFqdn):
+                                    dResults[sFqdn] = "FQDN;" + sFqdn
+
+                            if aArguments.private:
+                                if EndsWithPrivateTld(sFqdn):
+                                    dResults[sFqdn] = "FQDN;" + sFqdn
+
+                            if not aArguments.iana and not aArguments.private:
+                                dResults[sFqdn] = "FQDN;" + sFqdn
 
         if aArguments.srv:
             lMatchesSrv = Srv(strInput)
@@ -337,11 +354,6 @@ for strInput in sys.stdin:
             for sRelUrl in lMatchesRelUrl:
                 dResults[sRelUrl] = "URL;" + sRelUrl
 
-        #    if aArguments.url:
-    #        lMatchesUrlsMailto = UrlsMailto(strInput)
-    #        for sUrlsMailto in lMatchesUrlsMailto:
-    #                print(sUrlsMailto)
-    
         if aArguments.email:
             lMatchesEmail = Email(strInput)
             for sEmail in lMatchesEmail:

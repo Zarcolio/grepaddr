@@ -143,8 +143,11 @@ def Cidr6(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
+# To do catch:
+# - data:
 def Urls(strInput):
-    regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto\:)[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;])*"
+    #regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto\:)[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;])*"
+    regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto|data\:)[a-zA-Z0-9\.\/\?\:@\-_=#]([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,])*"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):

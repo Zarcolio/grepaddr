@@ -17,8 +17,8 @@ optional arguments:
   -fqdn              Extract fully qualified domain names.
   --iana             Extract FQDNs with IANA registered TLDs, use with -fqdn. No impact on other options.
   --private          Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.
-  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana or --private.
-                     No impact on other options.
+  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana or
+                     --private. No impact on other options.
   -srv               Extract DNS SRV records.
   -ipv4              Extract IP version 4 addresses.
   -cidr4             Extract IP version 4 addresses in CIDR notation.

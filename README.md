@@ -1,25 +1,28 @@
 # About grepaddr
 Grepaddr takes input from stdin and extracts different kinds of addresses from stdin.
+Because the script uses regexp, it's very common to get false positives.
+For FQDNs the options --iana --private and --resolve can be used to redu
 
 # Install
 Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)
 
 # Usage
 ```
-usage: grepaddr [-h] [-fqdn] [--iana] [--private] [--resolve] [-srv] [-ipv4] [-cidr4] [-ipv6] [-cidr6] [-mac]
-[-url] [-relurl] [-email] [-csv <file>] [-decode <rounds>] [-unslash <rounds>]
+usage: grepaddr [-h] [-fqdn] [-srv] [-email] [--port] [--iana] [--private] [--resolve] [-ipv4] [-cidr4] [-ipv6] [-cidr6] [-mac]
+[-url] [-relurl] [-csv <file>] [-decode <rounds>] [-unslash <rounds>]
 
-Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all
-types are shown.
+Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all types are shown.
 
 optional arguments:
   -h, --help         show this help message and exit
   -fqdn              Extract fully qualified domain names.
-  --iana             Extract FQDNs with IANA registered TLDs, use with -fqdn. No impact on other options.
-  --private          Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.
-  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana or
-                     --private. No impact on other options.
   -srv               Extract DNS SRV records.
+  -email             Extract e-mail addresses.
+  --port             Include :port for extraction.
+  --iana             Extract FQDNs with IANA registered TLDs , use with -fqdn, -srv or -email . No impact on other options.
+  --private          Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.
+  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana or --private.
+                     No impact on other options.
   -ipv4              Extract IP version 4 addresses.
   -cidr4             Extract IP version 4 addresses in CIDR notation.
   -ipv6              Extract IP version 6 addresses.
@@ -27,7 +30,6 @@ optional arguments:
   -mac               Extract MAC addresses.
   -url               Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).
   -relurl            Extract relative URLs.
-  -email             Extract e-mail addresses.
   -csv <file>        Save addresses found to this CSV file.
   -decode <rounds>   URL decode input this many times before extracting FQDNs.
   -unslash <rounds>  Unescape slashes within input this many times before extracting FQDNs.
@@ -49,3 +51,5 @@ Want to extract FQDNs and show only resolved FQDNs URLs needed to be decoded fir
 ```
 wget -qO - https://twitter.com|grepaddr -fqdn --resolve --decode 1
 ```
+# Contribute?
+Do you have some usefull additions to the script, please send in a pull request to help make this script better :)

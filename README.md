@@ -21,8 +21,8 @@ optional arguments:
   -srv               Extract DNS SRV records.
   -email             Extract e-mail addresses.
   --port             Include :port for extraction.
-  --iana             Extract FQDNs with IANA registered TLDs , use with -fqdn, -srv or -email . No impact on other
-                     options.
+  --iana             Extract FQDNs with IANA registered TLDs , use with -fqdn, -srv or -email . No impact on
+                     other options.
   --private          Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.
   --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana
                       or --private. No impact on other options.

@@ -25,7 +25,7 @@ optional arguments:
                      other options.
   --private          Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.
   --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana
-                      or --private. No impact on other options.
+                     or --private. No impact on other options.
   -ipv4              Extract IP version 4 addresses.
   -cidr4             Extract IP version 4 addresses in CIDR notation.
   -ipv6              Extract IP version 6 addresses.

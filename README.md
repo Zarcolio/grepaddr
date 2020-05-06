@@ -57,6 +57,6 @@ wget -qO - https://twitter.com|grepaddr -fqdn --resolve --decode 1
 Want to extract all addresses with the least chance of false positives without having to longer:
 ```
 wget -qO - https://twitter.com|grepaddr --iana
-
+```
 # Contribute?
 Do you have some usefull additions to the script, please send in a pull request to help make this script better :)

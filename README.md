@@ -12,7 +12,8 @@ Grepaddr should be able to run with a default Kali Linux installation without in
 usage: grepaddr [-h] [-fqdn] [-srv] [-email] [--port] [--iana] [--private] [--resolve] [-ipv4] [-cidr4] [-ipv6] [-cidr6] [-mac]
 [-url] [-relurl] [-csv <file>] [-decode <rounds>] [-unslash <rounds>]
 
-Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all types are shown.
+Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses 
+of all types are shown.
 
 optional arguments:
   -h, --help         show this help message and exit
@@ -22,8 +23,8 @@ optional arguments:
   --port             Include :port for extraction.
   --iana             Extract FQDNs with IANA registered TLDs , use with -fqdn, -srv or -email . No impact on other options.
   --private          Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.
-  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana or --private.
-                     No impact on other options.
+  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana
+                      or --private. No impact on other options.
   -ipv4              Extract IP version 4 addresses.
   -cidr4             Extract IP version 4 addresses in CIDR notation.
   -ipv6              Extract IP version 6 addresses.

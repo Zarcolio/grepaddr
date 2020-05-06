@@ -67,9 +67,13 @@ def JoinTlds(lOfficialTlds, privatetlds):
     alltlds = list(filter(lambda x: x != "", alltlds))
     return alltlds
 
+# To do: host:port & ip:port
+
 def Fqdn(strInput):
     # RFC compliant FQDN, regex by https://github.com/guyhughes/fqdn:
     regex = r"((?!-)[-A-Z\d]{1,62}(?<!-)\.)+[A-Z]{1,62}"
+    if aArguments.port:
+        regex += "(:(6553[0-5]|655[0-2][0-9]\d|65[0-4](\d){2}|6[0-4](\d){3}|[1-5](\d){4}|[1-9](\d){0,3})[\w|\d])?"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
@@ -83,7 +87,6 @@ def Srv(strInput):
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
-
 
 def EndsWithIanaTld(sUrl):
     for sTld in lIanaTlds:
@@ -143,8 +146,6 @@ def Cidr6(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
-# To do catch:
-# - data:
 def Urls(strInput):
     #regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto\:)[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;])*"
     regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto|data\:)[a-zA-Z0-9\.\/\?\:@\-_=#]([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,])*"
@@ -184,10 +185,12 @@ def Email(strInput):
 # Get some commandline arguments:
 sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all types are shown.')
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
-sArgParser.add_argument('--iana', help='Extract FQDNs with IANA registered TLDs, use with -fqdn. No impact on other options.', action="store_true")
+sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
+sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
+sArgParser.add_argument('--port', help='Include :port for extraction.', action="store_true")
+sArgParser.add_argument('--iana', help='Extract FQDNs with IANA registered TLDs , use with -fqdn, -srv or -email . No impact on other options.', action="store_true")
 sArgParser.add_argument('--private', help='Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.', action="store_true")
 sArgParser.add_argument('--resolve', help='Display only those FQDNs that can be resolved. Cannot be used together with --iana or --private. No impact on other options.', action="store_true")
-sArgParser.add_argument('-srv', help='Extract DNS SRV records.', action="store_true")
 sArgParser.add_argument('-ipv4', help='Extract IP version 4 addresses.', action="store_true")
 sArgParser.add_argument('-cidr4', help='Extract IP version 4 addresses in CIDR notation.', action="store_true")
 sArgParser.add_argument('-ipv6', help='Extract IP version 6 addresses.', action="store_true")
@@ -195,7 +198,6 @@ sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR n
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
 sArgParser.add_argument('-url', help='Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).', action="store_true")
 sArgParser.add_argument('-relurl', help='Extract relative URLs.', action="store_true")
-sArgParser.add_argument('-email', help='Extract e-mail addresses.', action="store_true")
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
 sArgParser.add_argument('-decode', metavar="<rounds>", help='URL decode input this many times before extracting FQDNs.')
 sArgParser.add_argument('-unslash', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
@@ -220,8 +222,8 @@ if (aArguments.iana or aArguments.private) and (aArguments.resolve):
     sArgParser.print_help()
     sys.exit(2)
 
-if (aArguments.iana and not aArguments.fqdn) or (aArguments.private and not aArguments.fqdn):
-    print("Arguments --iana and --private are used in conjuction with -fqdn.")
+if (aArguments.private or aArguments.iana) and (not aArguments.fqdn and not aArguments.email and not aArguments.srv): #  or (aArguments.private and not aArguments.fqdn) or (not aArguments.private and aArguments.fqdn):
+    print("Arguments --iana and --private are used in conjuction with -fqdn -srv or -email.")
     print()
     sArgParser.print_help()
     sys.exit(2)
@@ -302,11 +304,25 @@ for strInput in sys.stdin:
 
                             if not aArguments.iana and not aArguments.private:
                                 dResults[sFqdn] = "FQDN;" + sFqdn
-
+        """
         if aArguments.srv:
             lMatchesSrv = Srv(strInput)
             for sSrv in lMatchesSrv:
                 dResults[sSrv] = "SRV;" + sSrv
+        """
+        if aArguments.srv:
+            lMatchesSrv = Srv(strInput)
+            if aArguments.iana:
+                for sSrv in lMatchesSrv:
+                    if EndsWithIanaTld(sSrv):
+                        dResults[sSrv] = "SRV;" + sSrv
+            else:
+                for sSrv in lMatchesSrv:
+                    dResults[sSrv] = "SRV;" + sSrv
+
+
+
+
 
         if aArguments.mac:
             lMatchesMac1 = MacAddress1(strInput)
@@ -362,8 +378,13 @@ for strInput in sys.stdin:
 
         if aArguments.email:
             lMatchesEmail = Email(strInput)
-            for sEmail in lMatchesEmail:
-                dResults[sEmail] = "E-mail;" + sEmail
+            if aArguments.iana:
+                for sEmail in lMatchesEmail:
+                    if EndsWithIanaTld(sEmail):
+                        dResults[sEmail] = "E-mail;" + sEmail
+            else:
+                for sEmail in lMatchesEmail:
+                    dResults[sEmail] = "E-mail;" + sEmail
 
 for item in dResults.keys():
     print(item)

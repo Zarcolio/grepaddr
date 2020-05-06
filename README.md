@@ -1,7 +1,8 @@
 # About grepaddr
 Grepaddr takes input from stdin and extracts different kinds of addresses from stdin.
+
 Because the script uses regexp, it's very common to get false positives.
-For FQDNs the options --iana --private and --resolve can be used to redu
+The options --resolve (FQDNs only) --iana and --private can be used to reduce the number of false positives.
 
 # Install
 Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)

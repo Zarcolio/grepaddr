@@ -46,7 +46,7 @@ Want to extract addresses of certain type? Choose one of the options, for exampl
 ```
 wget -qO - https://nl.wikipedia.org/wiki/MAC-adres|grepaddr -mac
 ```
-Want to extract FQDNs with a privacte TLD, just run:
+Want to extract FQDNs with a private TLD, just run:
 ```
 wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffix-for-private-network|grepaddr -fqdn --private
 ```
@@ -54,5 +54,9 @@ Want to extract FQDNs and show only resolved FQDNs URLs needed to be decoded fir
 ```
 wget -qO - https://twitter.com|grepaddr -fqdn --resolve --decode 1
 ```
+Want to extract all addresses with the least chance of false positives without having to longer:
+```
+wget -qO - https://twitter.com|grepaddr --iana
+
 # Contribute?
 Do you have some usefull additions to the script, please send in a pull request to help make this script better :)

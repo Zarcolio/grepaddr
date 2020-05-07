@@ -33,17 +33,20 @@ def unslash_escapes(s):
     s = s.replace("\:", ":")
     s = s.replace("\;", ";")
 
+
     def unslash_match(match):
         try:
             return codecs.decode(match.group(0), 'unicode-escape')
         except:
             pass
 
+    print(ESCAPE_SEQUENCE_RE.sub(unslash_match, s))
+
     return ESCAPE_SEQUENCE_RE.sub(unslash_match, s)
 
 def GetIanaTlds():
     # Get official TLD:
-    sTldUrl = "https://data.iana.org:443/TLD/tlds-alpha-by-domain.txt"
+    sTldUrl = "https://data.iana.org/TLD/tlds-alpha-by-domain.txt"
     xheaders = {"User-Agent": "Python/grepaddress1.0", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.7,nl;q=0.3", "Accept-Encoding": "gzip, deflate", "Connection": "close", "Upgrade-Insecure-Requests": "1", "Cache-Control": "max-age=0"}
     session = requests.get(sTldUrl, headers=xheaders)
     lOfficialTlds = session.text.lower().split("\n")
@@ -174,6 +177,17 @@ def RelUrls(strInput):
 
     return lMatches
 
+def RelUrlsQuoted(strInput):
+    regex = r"([\"'])(\/[{a-z}{0-9}\.-_~!$&()\*\+,;=:@\[\]]+)([\"'])"
+    matches = re.finditer(regex, strInput, re.IGNORECASE)
+    lMatches = []
+    for matchNum, match in enumerate(matches, start=1):
+        lMatches.append(match.group(2))
+        #print(strInput + "----" + match.group(2))
+        #lMatches.append("{match}".format(matchNum=matchNum, start=match.start(), end=match.end(), match=match.group()))
+
+    return lMatches
+
 def Email(strInput):
     regex = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
@@ -280,6 +294,7 @@ for strInput in sys.stdin:
         for iCountUnslash in range(0, UnslashRounds + 1):
             if iCountUnslash > 0:
                 strInput = unslash_escapes(strInput)
+                print(strInput)
 
             # To prevent remants in hostnames originating from escaped characters:
             if UnslashRounds == 1 or iCountUnslash == UnslashRounds:
@@ -373,6 +388,11 @@ for strInput in sys.stdin:
 
         if aArguments.relurl:
             lMatchesRelUrl = RelUrls(strInput)
+            for sRelUrl in lMatchesRelUrl:
+                dResults[sRelUrl] = "URL;" + sRelUrl
+
+        if aArguments.relurl:
+            lMatchesRelUrl = RelUrlsQuoted(strInput)
             for sRelUrl in lMatchesRelUrl:
                 dResults[sRelUrl] = "URL;" + sRelUrl
 

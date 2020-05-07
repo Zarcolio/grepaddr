@@ -26,7 +26,7 @@ ESCAPE_SEQUENCE_RE = re.compile(r'''
     | \\[\\'"abfnrtv]  # Single-character escapes
     )''', re.UNICODE | re.VERBOSE)
 
-def unslash_escapes(s):
+def unescape_replace(s):
     # replace = hack because / and . cannot be unescaped:
     s = s.replace("\/", "/")
     s = s.replace("\.", ".")
@@ -34,15 +34,15 @@ def unslash_escapes(s):
     s = s.replace("\;", ";")
 
 
-    def unslash_match(match):
+    def unescape_match(match):
         try:
             return codecs.decode(match.group(0), 'unicode-escape')
         except:
             pass
 
-    #print(ESCAPE_SEQUENCE_RE.sub(unslash_match, s))
+    #print(ESCAPE_SEQUENCE_RE.sub(unescape_match, s))
 
-    return ESCAPE_SEQUENCE_RE.sub(unslash_match, s)
+    return ESCAPE_SEQUENCE_RE.sub(unescape_match, s)
 
 def GetIanaTlds():
     # Get official TLD:
@@ -206,11 +206,11 @@ sArgParser.add_argument('-url', help='Extract URLs (FQDN, IPv4, IPv6, mailto and
 sArgParser.add_argument('-relurl', help='Extract relative URLs.', action="store_true")
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
 sArgParser.add_argument('-decode', metavar="<rounds>", help='URL decode input this many times before extracting FQDNs.')
-sArgParser.add_argument('-unslash', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
+sArgParser.add_argument('-unescape', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
 
 aArguments=sArgParser.parse_args()
 
-if aArguments.fqdn == False and aArguments.srv == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.relurl == False and aArguments.email == False:
+if aArguments.fqdn == False and aArguments.srv == False and aArguments.ipv4 == False and aArguments.cidr4 == False and aArguments.ipv6 == False and aArguments.cidr6 == False and aArguments.mac == False and aArguments.url == False and aArguments.relurl == False and aArguments.email == False and aArguments.port == False:
     aArguments.fqdn = True
     aArguments.srv = True
     aArguments.ipv4 = True
@@ -221,6 +221,7 @@ if aArguments.fqdn == False and aArguments.srv == False and aArguments.ipv4 == F
     aArguments.url = True
     aArguments.relurl = True
     aArguments.email = True
+    aArguments.port = True
 
 if (aArguments.iana or aArguments.private) and (aArguments.resolve):
     print("Arguments --iana and --private cannot be used in conjuction with -resolves.")
@@ -254,7 +255,7 @@ for strInput in sys.stdin:
 
         # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
         if decodingRounds == 1 or iCountDecode == decodingRounds:
-            # Changes in this section should also be done in the unslash section
+            # Changes in this section should also be done in the unescape section !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             if aArguments.fqdn:
                 lMatchesFqdn = Fqdn(strInput)
                 for sFqdn in lMatchesFqdn:
@@ -276,20 +277,20 @@ for strInput in sys.stdin:
                         if not aArguments.iana and not aArguments.private:
                             dResults[sFqdn] = "FQDN;" + sFqdn
 
-        iCountUnslash = 0
-        # Default to never unslash:
-        if not aArguments.unslash:
-            UnslashRounds = 0
+        iCountunescape = 0
+        # Default to never unescape:
+        if not aArguments.unescape:
+            unescapeRounds = 0
         else:
-            UnslashRounds = int(aArguments.unslash)
+            unescapeRounds = int(aArguments.unescape)
 
-        for iCountUnslash in range(0, UnslashRounds + 1):
-            if iCountUnslash > 0:
-                strInput = unslash_escapes(strInput)
+        for iCountunescape in range(0, unescapeRounds + 1):
+            if iCountunescape > 0:
+                strInput = unescape_replace(strInput)
                 #print(strInput)
 
             # To prevent remants in hostnames originating from escaped characters:
-            if UnslashRounds == 1 or iCountUnslash == UnslashRounds:
+            if unescapeRounds == 1 or iCountunescape == unescapeRounds:
                 # Implement same changes as in the decode section:
                 if aArguments.fqdn:
                     lMatchesFqdn = Fqdn(strInput)

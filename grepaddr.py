@@ -40,7 +40,7 @@ def unslash_escapes(s):
         except:
             pass
 
-    print(ESCAPE_SEQUENCE_RE.sub(unslash_match, s))
+    #print(ESCAPE_SEQUENCE_RE.sub(unslash_match, s))
 
     return ESCAPE_SEQUENCE_RE.sub(unslash_match, s)
 

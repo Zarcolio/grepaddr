@@ -254,7 +254,7 @@ for strInput in sys.stdin:
             strInput = urllib.parse.unquote(strInput)
 
         # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
-        if decodingRounds == 1 or iCountDecode == decodingRounds:
+        if decodingRounds == 0 or iCountDecode == decodingRounds:       # <-- if no decoding is done or the last round has completed.
             # Changes in this section should also be done in the unescape section !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             if aArguments.fqdn:
                 lMatchesFqdn = Fqdn(strInput)
@@ -269,11 +269,11 @@ for strInput in sys.stdin:
                         if aArguments.iana:
                             if EndsWithIanaTld(sFqdn):
                                 dResults[sFqdn] = "FQDN;" + sFqdn
-
+    
                         if aArguments.private:
                             if EndsWithPrivateTld(sFqdn):
                                 dResults[sFqdn] = "FQDN;" + sFqdn
-
+    
                         if not aArguments.iana and not aArguments.private:
                             dResults[sFqdn] = "FQDN;" + sFqdn
 
@@ -284,34 +284,34 @@ for strInput in sys.stdin:
         else:
             unescapeRounds = int(aArguments.unescape)
 
-        for iCountunescape in range(0, unescapeRounds + 1):
-            if iCountunescape > 0:
-                strInput = unescape_replace(strInput)
-                #print(strInput)
+    for iCountunescape in range(0, unescapeRounds + 1):
+        if iCountunescape > 0:
+            strInput = unescape_replace(strInput)
+            #print(strInput)
 
             # To prevent remants in hostnames originating from escaped characters:
-            if unescapeRounds == 1 or iCountunescape == unescapeRounds:
-                # Implement same changes as in the decode section:
-                if aArguments.fqdn:
-                    lMatchesFqdn = Fqdn(strInput)
-                    for sFqdn in lMatchesFqdn:
-                        if aArguments.resolve:
-                            try:
-                                lResolvedFqdn = socket.gethostbyname(sFqdn)  # lResolvedFqdn is not used.
+            # Implement same changes as in the decode section:
+        if unescapeRounds == 0 or iCountDecode == iCountunescape:       # <-- if no decoding is done or the last round has completed.
+            if aArguments.fqdn:
+                lMatchesFqdn = Fqdn(strInput)
+                for sFqdn in lMatchesFqdn:
+                    if aArguments.resolve:
+                        try:
+                            lResolvedFqdn = socket.gethostbyname(sFqdn)  # lResolvedFqdn is not used.
+                            dResults[sFqdn] = "FQDN;" + sFqdn
+                        except:
+                            pass
+                    else:
+                        if aArguments.iana:
+                            if EndsWithIanaTld(sFqdn):
                                 dResults[sFqdn] = "FQDN;" + sFqdn
-                            except:
-                                pass
-                        else:
-                            if aArguments.iana:
-                                if EndsWithIanaTld(sFqdn):
-                                    dResults[sFqdn] = "FQDN;" + sFqdn
 
-                            if aArguments.private:
-                                if EndsWithPrivateTld(sFqdn):
-                                    dResults[sFqdn] = "FQDN;" + sFqdn
-
-                            if not aArguments.iana and not aArguments.private:
+                        if aArguments.private:
+                            if EndsWithPrivateTld(sFqdn):
                                 dResults[sFqdn] = "FQDN;" + sFqdn
+
+                        if not aArguments.iana and not aArguments.private:
+                            dResults[sFqdn] = "FQDN;" + sFqdn
 
         if aArguments.srv:
             lMatchesSrv = Srv(strInput)

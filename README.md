@@ -1,5 +1,5 @@
 # About grepaddr
-Grepaddr takes input from stdin and extracts different kinds of addresses from stdin.
+Grepaddr takes input from stdin and extracts different kinds of addresses from stdin like URLs, IP addresses, e-mail addresses, MAC addresses and more.
 
 Because the script uses regexp, it's very common to get false positives.
 The options --resolve (FQDNs only) --iana and --private can be used to reduce the number of false positives.

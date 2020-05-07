@@ -70,8 +70,6 @@ def JoinTlds(lOfficialTlds, privatetlds):
     alltlds = list(filter(lambda x: x != "", alltlds))
     return alltlds
 
-# To do: host:port & ip:port
-
 def Fqdn(strInput):
     # RFC compliant FQDN, regex by https://github.com/guyhughes/fqdn:
     regex = r"((?!-)[-A-Z\d]{1,62}(?<!-)\.)+[A-Z]{1,62}"
@@ -150,7 +148,6 @@ def Cidr6(strInput):
     return lMatches
 
 def Urls(strInput):
-    #regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto\:)[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;])*"
     regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto|data\:)[a-zA-Z0-9\.\/\?\:@\-_=#]([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,])*"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
@@ -173,8 +170,6 @@ def RelUrls(strInput):
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append(match.group(2))
-        #lMatches.append("{match}".format(matchNum=matchNum, start=match.start(), end=match.end(), match=match.group()))
-
     return lMatches
 
 def RelUrlsQuoted(strInput):
@@ -183,9 +178,6 @@ def RelUrlsQuoted(strInput):
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
         lMatches.append(match.group(2))
-        #print(strInput + "----" + match.group(2))
-        #lMatches.append("{match}".format(matchNum=matchNum, start=match.start(), end=match.end(), match=match.group()))
-
     return lMatches
 
 def Email(strInput):
@@ -294,7 +286,7 @@ for strInput in sys.stdin:
         for iCountUnslash in range(0, UnslashRounds + 1):
             if iCountUnslash > 0:
                 strInput = unslash_escapes(strInput)
-                print(strInput)
+                #print(strInput)
 
             # To prevent remants in hostnames originating from escaped characters:
             if UnslashRounds == 1 or iCountUnslash == UnslashRounds:
@@ -319,12 +311,7 @@ for strInput in sys.stdin:
 
                             if not aArguments.iana and not aArguments.private:
                                 dResults[sFqdn] = "FQDN;" + sFqdn
-        """
-        if aArguments.srv:
-            lMatchesSrv = Srv(strInput)
-            for sSrv in lMatchesSrv:
-                dResults[sSrv] = "SRV;" + sSrv
-        """
+
         if aArguments.srv:
             lMatchesSrv = Srv(strInput)
             if aArguments.iana:
@@ -334,10 +321,6 @@ for strInput in sys.stdin:
             else:
                 for sSrv in lMatchesSrv:
                     dResults[sSrv] = "SRV;" + sSrv
-
-
-
-
 
         if aArguments.mac:
             lMatchesMac1 = MacAddress1(strInput)

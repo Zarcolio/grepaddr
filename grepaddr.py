@@ -213,7 +213,7 @@ sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_tru
 sArgParser.add_argument('-url', help='Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).', action="store_true")
 sArgParser.add_argument('-relurl', help='Extract relative URLs.', action="store_true")
 sArgParser.add_argument('--baseurl', metavar="<url>", help='Provide a base URL which is prepended to relative URLS starting at root. Use with -url and/or -relurl.')
-sArgParser.add_argument('--basetag', help='Search for base URL in <BASE> and prepend it to relative URLS. Use with -url and/or -relurl.', action="store_true")
+sArgParser.add_argument('--basetag', help='Search for base URL in <BASE> and prepend it to URLS. Use with -url and/or -relurl.', action="store_true")
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
 sArgParser.add_argument('-decode', metavar="<rounds>", help='URL decode input this many times before extracting FQDNs.')
 sArgParser.add_argument('-unescape', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')

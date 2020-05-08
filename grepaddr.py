@@ -376,8 +376,11 @@ for strInput in sys.stdin:
         if aArguments.relurl:
             lMatchesRelUrl = RelUrls(strInput)
             for sRelUrl in lMatchesRelUrl:
-                if aArguments.baseurl and sRelUrl[0] == "/":       # if relative URL starting at root
+                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":       # if relative URL starting at the root of the domain, but not starting with //
                     sBase = aArguments.baseurl
+                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":
+                    sBaseFqdn = Fqdn(aArguments.baseurl)
+                    sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
                 else:
                     sBase = ""
                 dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl        
@@ -385,11 +388,14 @@ for strInput in sys.stdin:
         if aArguments.relurl:
             lMatchesRelUrl = RelUrlsQuoted(strInput)
             for sRelUrl in lMatchesRelUrl:
-                if aArguments.baseurl and sRelUrl[0] == "/":       # if relative URL starting at root
+                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":       # if relative URL starting at the root of the domain, but not starting with //
                     sBase = aArguments.baseurl
+                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":
+                    sBaseFqdn = Fqdn(aArguments.baseurl)
+                    sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
                 else:
                     sBase = ""
-                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl
+                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl        
                 
         if aArguments.email:
             lMatchesEmail = Email(strInput)

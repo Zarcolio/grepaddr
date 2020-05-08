@@ -36,8 +36,9 @@ optional arguments:
   -mac               Extract MAC addresses.
   -url               Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).
   -relurl            Extract relative URLs.
-  --basetag          Search for base URL in <BASE> and prepend it to relative URLS. Use with -url and/or -relurl.
-  --baseurl <url>    Provide a base URL which is prepended to relative URLS starting at root.
+  --baseurl <url>    Provide a base URL which is prepended to relative URLS starting at root. Use with -url and/or
+                     -relurl.
+  --basetag          Search for base URL in <BASE> and prepend it to URLS. Use with -url and/or -relurl.
   -csv <file>        Save addresses found to this CSV file.
   -decode <rounds>   URL decode input this many times before extracting FQDNs.
   -unslash <rounds>  Unescape slashes within input this many times before extracting FQDNs.

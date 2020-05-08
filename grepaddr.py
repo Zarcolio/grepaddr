@@ -204,6 +204,7 @@ sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR n
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
 sArgParser.add_argument('-url', help='Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).', action="store_true")
 sArgParser.add_argument('-relurl', help='Extract relative URLs.', action="store_true")
+sArgParser.add_argument('--baseurl', metavar="<url>", help='Provide a base URL which is prepended to relative URLS starting at root.')
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
 sArgParser.add_argument('-decode', metavar="<rounds>", help='URL decode input this many times before extracting FQDNs.')
 sArgParser.add_argument('-unescape', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
@@ -242,6 +243,7 @@ x = 0
 dResults = {}
 #Read from standard input:
 for strInput in sys.stdin:
+
     iCountDecode = 0
     # Default to never URL decode:
     if not aArguments.decode:
@@ -249,12 +251,20 @@ for strInput in sys.stdin:
     else:
         decodingRounds = int(aArguments.decode)
 
+    iCountunescape = 0
+    # Default to never unescape:
+    if not aArguments.unescape:
+        unescapeRounds = 0
+    else:
+        unescapeRounds = int(aArguments.unescape)
+
+
     for iCountDecode in range(0, decodingRounds+1):
         if iCountDecode>0:
             strInput = urllib.parse.unquote(strInput)
 
         # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
-        if decodingRounds == 0 or iCountDecode == decodingRounds:       # <-- if no decoding is done or the last round has completed.
+        if (decodingRounds == 0 or iCountDecode == decodingRounds) and (unescapeRounds == 0):       # <-- if no decoding is done or the last round has completed, but also if no unescaping is needed.
             # Changes in this section should also be done in the unescape section !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             if aArguments.fqdn:
                 lMatchesFqdn = Fqdn(strInput)
@@ -277,21 +287,14 @@ for strInput in sys.stdin:
                         if not aArguments.iana and not aArguments.private:
                             dResults[sFqdn] = "FQDN;" + sFqdn
 
-        iCountunescape = 0
-        # Default to never unescape:
-        if not aArguments.unescape:
-            unescapeRounds = 0
-        else:
-            unescapeRounds = int(aArguments.unescape)
 
     for iCountunescape in range(0, unescapeRounds + 1):
         if iCountunescape > 0:
             strInput = unescape_replace(strInput)
-            #print(strInput)
 
-            # To prevent remants in hostnames originating from escaped characters:
-            # Implement same changes as in the decode section:
-        if unescapeRounds == 0 or iCountDecode == iCountunescape:       # <-- if no decoding is done or the last round has completed.
+
+        # To prevent remants in hostnames originating from escaped characters:
+        if unescapeRounds == 0 or iCountunescape == unescapeRounds:       # <-- if no decoding is done or the last round has completed.
             if aArguments.fqdn:
                 lMatchesFqdn = Fqdn(strInput)
                 for sFqdn in lMatchesFqdn:
@@ -359,12 +362,12 @@ for strInput in sys.stdin:
                     dResults[sIpV6] = "IPv6;" + sIpV6
                 else:
                     dResults[sIpV6] = "IPv6;" + sIpV6
-
+        
         if aArguments.url:
             lMatchesUrl = Urls(strInput)
             for sUrl in lMatchesUrl:
                     dResults[sUrl] = "URL;" + sUrl
-
+        
         if aArguments.url:
             lMatchesUrl6 = UrlsIpV6(strInput)
             for sUrl6 in lMatchesUrl6:
@@ -373,13 +376,21 @@ for strInput in sys.stdin:
         if aArguments.relurl:
             lMatchesRelUrl = RelUrls(strInput)
             for sRelUrl in lMatchesRelUrl:
-                dResults[sRelUrl] = "URL;" + sRelUrl
+                if aArguments.baseurl and sRelUrl[0] == "/":       # if relative URL starting at root
+                    sBase = aArguments.baseurl
+                else:
+                    sBase = ""
+                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl        
 
         if aArguments.relurl:
             lMatchesRelUrl = RelUrlsQuoted(strInput)
             for sRelUrl in lMatchesRelUrl:
-                dResults[sRelUrl] = "URL;" + sRelUrl
-
+                if aArguments.baseurl and sRelUrl[0] == "/":       # if relative URL starting at root
+                    sBase = aArguments.baseurl
+                else:
+                    sBase = ""
+                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl
+                
         if aArguments.email:
             lMatchesEmail = Email(strInput)
             if aArguments.iana:

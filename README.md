@@ -62,6 +62,10 @@ Want to extract all addresses with the least chance of false positives without h
 ```
 wget -qO - https://twitter.com|grepaddr --iana
 ```
+Want to extract all addresses and convert relative URLs starting at the root to an absolute URL:
+```
+wget -qO - https://twitter.com|grepaddr --base https://twitter.com
+```
 Want to extract addresses from a binary, uses it together with strings:
 ```
 string binary.ext |grepaddr

@@ -4,13 +4,16 @@ Grepaddr takes input from stdin and extracts different kinds of addresses from s
 Because the script uses regexp, it's very common to get false positives.
 The options --resolve (FQDNs only) --iana and --private can be used to reduce the number of false positives.
 
+# Why grepaddr?
+Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. grepaddr can extract a large number of address types.
+
 # Install
 Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)
 
 # Usage
 ```
 usage: grepaddr [-h] [-fqdn] [-srv] [-email] [--port] [--iana] [--private] [--resolve] [-ipv4] [-cidr4] [-ipv6]
- [-cidr6] [-mac] [-url] [-relurl] [-csv <file>] [-decode <rounds>] [-unslash <rounds>]
+ [-cidr6] [-mac] [-url] [-relurl] [--baseurl <url>] [-csv <file>] [-decode <rounds>] [-unescape <rounds>]
 
 Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all
 types are shown.
@@ -33,6 +36,7 @@ optional arguments:
   -mac               Extract MAC addresses.
   -url               Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).
   -relurl            Extract relative URLs.
+  --baseurl <url>    Provide a base URL which is prepended to relative URLS starting at root.
   -csv <file>        Save addresses found to this CSV file.
   -decode <rounds>   URL decode input this many times before extracting FQDNs.
   -unslash <rounds>  Unescape slashes within input this many times before extracting FQDNs.

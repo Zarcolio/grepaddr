@@ -62,5 +62,10 @@ Want to extract all addresses with the least chance of false positives without h
 ```
 wget -qO - https://twitter.com|grepaddr --iana
 ```
+Want to extract addresses from a binary, uses it together with strings:
+```
+string binary.ext |grepaddr
+```
+
 # Contribute?
 Do you have some usefull additions to the script, please send in a pull request to help make this script better :)

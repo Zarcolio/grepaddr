@@ -68,7 +68,7 @@ wget -qO - https://twitter.com|grepaddr --base https://twitter.com
 ```
 Want to extract addresses from a binary, uses it together with strings:
 ```
-string binary.ext |grepaddr
+string binary.ext|grepaddr
 ```
 
 # Contribute?

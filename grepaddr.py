@@ -188,6 +188,14 @@ def Email(strInput):
         lMatches.append( "{match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
     return lMatches
 
+def BaseTag(strInput):
+    regex = r"(\<base.*href=\"?)([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/['\"]?[^'\"\)\s>]+)"
+    matches = re.finditer(regex, strInput, re.IGNORECASE)
+    lMatches = []
+    for matchNum, match in enumerate(matches, start=1):
+        lMatches.append(match.group(2))
+    return lMatches
+
 # Get some commandline arguments:
 sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all types are shown.')
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
@@ -204,7 +212,8 @@ sArgParser.add_argument('-cidr6', help='Extract IP version 6 addresses in CIDR n
 sArgParser.add_argument('-mac', help='Extract MAC addresses.', action="store_true")
 sArgParser.add_argument('-url', help='Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).', action="store_true")
 sArgParser.add_argument('-relurl', help='Extract relative URLs.', action="store_true")
-sArgParser.add_argument('--baseurl', metavar="<url>", help='Provide a base URL which is prepended to relative URLS starting at root.')
+sArgParser.add_argument('--baseurl', metavar="<url>", help='Provide a base URL which is prepended to relative URLS starting at root. Use with -url and/or -relurl.')
+sArgParser.add_argument('--basetag', help='Search for base URL in <BASE> and prepend it to relative URLS. Use with -url and/or -relurl.', action="store_true")
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
 sArgParser.add_argument('-decode', metavar="<rounds>", help='URL decode input this many times before extracting FQDNs.')
 sArgParser.add_argument('-unescape', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
@@ -235,6 +244,19 @@ if (aArguments.private or aArguments.iana) and (not aArguments.fqdn and not aArg
     print()
     sArgParser.print_help()
     sys.exit(2)
+
+if (aArguments.basetag or aArguments.baseurl) and (not aArguments.url and not aArguments.relurl):
+    print("Arguments --basetag and --baseurl are used in conjuction with -url -srv or -relurl.")
+    print()
+    sArgParser.print_help()
+    sys.exit(2)
+
+if aArguments.basetag and aArguments.baseurl:
+    print("Arguments --basetag and --baseurl cannot be used in conjuction with eachother.")
+    print()
+    sArgParser.print_help()
+    sys.exit(2)
+
 
 lIanaTlds = GetIanaTlds()
 lPrivateTlds = GetPrivateTlds()
@@ -374,28 +396,46 @@ for strInput in sys.stdin:
                 dResults[sUrl6] = "URL;" + sUrl6
 
         if aArguments.relurl:
-            lMatchesRelUrl = RelUrls(strInput)
+            if aArguments.basetag:
+                lMatchesBaseTagUrl = BaseTag(strInput)
+                if len(lMatchesBaseTagUrl) > 0:
+                    sBase = lMatchesBaseTagUrl[0]
+
+            lMatchesRelUrl = RelUrls(strInput)                                          # Always duplicate this code to RelUrlsQuoted below.
             for sRelUrl in lMatchesRelUrl:
-                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":       # if relative URL starting at the root of the domain, but not starting with //
+                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":      # if relative URL starts at the root of the domain, but not starting with //
                     sBase = aArguments.baseurl
-                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":
+                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":    # if relative URL starts at the root of the scheme, starting with //
                     sBaseFqdn = Fqdn(aArguments.baseurl)
                     sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
+                elif aArguments.basetag:
+                    try:
+                        if sBase:
+                            pass
+                    except:
+                        sBase = ""
                 else:
                     sBase = ""
-                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl        
 
-        if aArguments.relurl:
+                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl
+
             lMatchesRelUrl = RelUrlsQuoted(strInput)
             for sRelUrl in lMatchesRelUrl:
-                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":       # if relative URL starting at the root of the domain, but not starting with //
+                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":       # if relative URL starts at the root of the domain, but not starting with //
                     sBase = aArguments.baseurl
-                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":
+                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":     # if relative URL starts at the root of the scheme, starting with //
                     sBaseFqdn = Fqdn(aArguments.baseurl)
                     sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
+                elif aArguments.basetag:
+                    try:
+                        if sBase:
+                            pass
+                    except:
+                        sBase = ""
                 else:
                     sBase = ""
-                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl        
+
+                dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl
                 
         if aArguments.email:
             lMatchesEmail = Email(strInput)

@@ -61,7 +61,7 @@ Want to extract FQDNs and show only resolved FQDNs URLs needed to be decoded fir
 ```
 wget -qO - https://twitter.com|grepaddr -fqdn --resolve --decode 1
 ```
-Want to extract all addresses with the least chance of false positives without having to longer:
+Want to extract all addresses with the least chance of false positives without having to wait for resolving FQDNs:
 ```
 wget -qO - https://twitter.com|grepaddr --iana
 ```

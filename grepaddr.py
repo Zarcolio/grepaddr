@@ -11,6 +11,7 @@ import codecs
 import socket
 import urllib
 import html
+import quopri
 
 def signal_handler(sig, frame):
         print("\nCtrl-C detected, exiting...\n")
@@ -171,7 +172,8 @@ def RelUrls(strInput):
     return lMatches
 
 def RelUrlsQuoted(strInput):
-    regex = r"([\"'])(\/[{a-z}{0-9}\.-_~!$&()\*\+,;=:@\[\]]+)([\"'])"
+    # regex = r"([\"'])(\/[{a-z}{0-9}\.-_~!$&()\*\+,;=:@\[\]]+)([\"'])"
+    regex = r"(['\"\>])(\/*.*[\.\/].+)(['\"\<])"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
@@ -214,8 +216,11 @@ sArgParser.add_argument('--basetag', help='Search for base URL in <BASE> and pre
 sArgParser.add_argument('--baseurl', metavar="<url>", help='Provide a base URL which is prepended to relative URLS starting at root. Use with -url and/or -relurl.')
 sArgParser.add_argument('-csv', metavar="<file>", help='Save addresses found to this CSV file.')
 sArgParser.add_argument('-decode', metavar="<rounds>", help='URL decode input this many times before extracting FQDNs.')
+sArgParser.add_argument('-qpdecode', help='Quoted-printable decode input once before extracting FQDNs.', action="store_true")
 sArgParser.add_argument('-unescape', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
-sArgParser.add_argument('-entities', help='Unescape slashes within input this many times before extracting FQDNs.', action="store_true")
+sArgParser.add_argument('-entities', help='Decode HTML entities within input this many times before extracting FQDNs.', action="store_true")
+sArgParser.add_argument('-search', metavar="<search engine>", help='Print a link for this address to one of these search pages: google, intelx, centralops (WHOIS)')
+sArgParser.add_argument('-sort', help='Sort te results.', action="store_true")
 
 aArguments=sArgParser.parse_args()
 
@@ -256,16 +261,17 @@ if aArguments.basetag and aArguments.baseurl:
     sArgParser.print_help()
     sys.exit(2)
 
-
-lIanaTlds = GetIanaTlds()
-lPrivateTlds = GetPrivateTlds()
+if aArguments.iana:
+    lIanaTlds = GetIanaTlds()
+if aArguments.private:
+    lPrivateTlds = GetPrivateTlds()
 
 x = 0
 dResults = {}
 #Read from standard input:
 try:
     for strInput in sys.stdin:
-    
+        strInput = strInput.rstrip()
         iCountDecode = 0
         # Default to never URL decode:
         if not aArguments.decode:
@@ -280,8 +286,16 @@ try:
         else:
             unescapeRounds = int(aArguments.unescape)
     
+    
+        # =========================
+        # Finish loop first:
+        # =========================
+        if aArguments.qpdecode:
+            strInput = quopri.decodestring(strInput).decode('utf-8', errors='ignore')
+
         if aArguments.entities:
             strInput = html.unescape(strInput)
+
     
         for iCountDecode in range(0, decodingRounds+1):
             if iCountDecode>0:
@@ -419,7 +433,7 @@ try:
                     else:
                         sBase = ""
     
-                    dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl
+                    dResults[sBase + sRelUrl] = "RELURL;" + sBase + sRelUrl
     
                 lMatchesRelUrl = RelUrlsQuoted(strInput)
                 for sRelUrl in lMatchesRelUrl:
@@ -437,7 +451,7 @@ try:
                     else:
                         sBase = ""
     
-                    dResults[sBase + sRelUrl] = "URL;" + sBase + sRelUrl
+                    dResults[sBase + sRelUrl] = "RELURL;" + sBase + sRelUrl
                     
             if aArguments.email:
                 lMatchesEmail = Email(strInput)
@@ -450,10 +464,31 @@ try:
                         dResults[sEmail] = "E-mail;" + sEmail
 except:
     pass
-for item in dResults.keys():
-    print(item)
+
+if aArguments.search:
+    iMaxLength = len(sorted(dResults.keys(), key=len)[-1])
+
+if aArguments.sort:
+    dResults2 = sorted(dResults.keys())
+else:
+    dResults2 = dResults.keys()
+    
+for item in dResults2:
+    if aArguments.search:
+        iOffset = iMaxLength - len(item)
+        if (aArguments.search == "intelx") and ("FQDN;" in dResults[item] or "E-mail;" in dResults[item] or "URL;" in dResults[item] or "IPv6 CIDR;" in dResults[item] or "IPv4 CIDR;" in dResults[item] or "IPv6;" in dResults[item] or "IPv4;" in dResults[item]) and not "RELURL;" in dResults[item]:
+            sIntelPrint = " " * iOffset + " - https://intelx.io/?s=" + item
+        elif (aArguments.search == "centralops") and ("FQDN;" in dResults[item] or "E-mail;" in dResults[item] or "URL;" in dResults[item] or "IPv6 CIDR;" in dResults[item] or "IPv4 CIDR;" in dResults[item] or "IPv6;" in dResults[item] or "IPv4;" in dResults[item]) and not "RELURL;" in dResults[item]:
+            sIntelPrint = " " * iOffset + " - https://centralops.net/co/DomainDossier.aspx?addr=" + item + "&dom_whois=true&net_whois=true&&dom_dns=true"
+        else:
+            sIntelPrint = ""
+    else:
+        sIntelPrint = ""
+    print(item + sIntelPrint)
+
+
 
 if aArguments.csv:
     fCsv = open(aArguments.csv, 'w', buffering=1)
-    for item in dResults.values():
+    for item in sorted(dResults.values()):
         fCsv.write(item + "\n")

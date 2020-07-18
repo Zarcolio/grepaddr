@@ -172,7 +172,7 @@ def RelUrls(strInput):
     return lMatches
 
 def RelUrlsQuoted(strInput):
-    regex = r"([\"'])(\/[{a-z}{0-9}\-\.-_~!$&()\*\+,;=:@\[\]]+)([\"'])"
+    regex = r"(\W)(\.{0,2}\/[a-zA-Z0-9\-\.\/\?&=_~!@#;\[\]\(\)\\$%',:\+^*`|]+)(\W)"
     #regex = r"(['\"\>])(\/[\.\/].+)(['\"\<])"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []

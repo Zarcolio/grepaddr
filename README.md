@@ -8,7 +8,12 @@ The options --resolve (FQDNs only) --iana and --private can be used to reduce th
 Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. grepaddr can extract a large number of address types.
 
 # Install
-Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)
+Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. 
+Just run:
+```
+git clone https://github.com/Zarcolio/grepaddr
+```
+If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)
 
 # Usage
 ```

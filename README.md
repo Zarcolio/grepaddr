@@ -12,6 +12,8 @@ Grepaddr should be able to run with a default Kali Linux installation without in
 Just run:
 ```
 git clone https://github.com/Zarcolio/grepaddr
+cd grepaddr
+bash install.sh
 ```
 If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)
 

@@ -19,12 +19,12 @@ If you're running into trouble running grepaddr, please drop me an issue and I'l
 
 # Usage
 ```
-usage: grepaddr [-h] [-fqdn] [-srv] [-email] [--port] [--iana] [--private] [--resolve] [-ipv4] [-cidr4] [-ipv6]
- [-cidr6] [-mac] [-url] [-relurl] [--baseurl <url>] [--basetag] [-csv <file>] [-decode <rounds>] 
- [-unescape <rounds>]
+usage: grepaddr [-h] [-fqdn] [-srv] [-email] [--port] [--iana] [--private] [--resolve] [-ipv4] [-cidr4]
+[-ipv6] [-cidr6] [-mac] [-url] [-relurl] [--baseurl <url>] [--basetag] [-csv <file>] [-decode <rounds>] 
+[-unescape <rounds>]
 
-Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all
-types are shown.
+Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses
+of all types are shown.
 
 optional arguments:
   -h, --help         show this help message and exit
@@ -32,11 +32,11 @@ optional arguments:
   -srv               Extract DNS SRV records.
   -email             Extract e-mail addresses.
   --port             Include :port for extraction.
-  --iana             Extract FQDNs with IANA registered TLDs , use with -fqdn, -srv or -email . No impact on
-                     other options.
+  --iana             Extract FQDNs with IANA registered TLDs , use with -fqdn, -srv or -email . No
+                     impact on other options.
   --private          Extract FQDNs with TLDs for private use, use with -fqdn. No impact on other options.
-  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with --iana
-                     or --private. No impact on other options.
+  --resolve          Display only those FQDNs that can be resolved. Cannot be used together with
+                     --iana or --private. No impact on other options.
   -ipv4              Extract IP version 4 addresses.
   -cidr4             Extract IP version 4 addresses in CIDR notation.
   -ipv6              Extract IP version 6 addresses.
@@ -45,8 +45,8 @@ optional arguments:
   -url               Extract URLs (FQDN, IPv4, IPv6, mailto and generic detection of schemes).
   -relurl            Extract relative URLs.
   --basetag          Search for base URL in <BASE> and prepend it to URLS. Use with -url and/or -relurl.
-  --baseurl <url>    Provide a base URL which is prepended to relative URLS starting at root. Use with -url
-                     and/or -relurl.
+  --baseurl <url>    Provide a base URL which is prepended to relative URLS starting at root. Use
+                     with -url and/or -relurl.
   -csv <file>        Save addresses found to this CSV file.
   -decode <rounds>   URL decode input this many times before extracting FQDNs.
   -unslash <rounds>  Unescape slashes within input this many times before extracting FQDNs.

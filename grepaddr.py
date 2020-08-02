@@ -172,7 +172,8 @@ def RelUrls(strInput):
     return lMatches
 
 def RelUrlsQuoted(strInput):
-    regex = r"(\W)(\.{0,2}\/[a-zA-Z0-9\-\.\/\?&=_~!@#;\[\]\(\)\\$%',:\+^*`|]+)(\W)"
+    # Fix inclusion of HTML end tags and absolute URLS:
+    regex = r"(\W)(\.{0,2}\/([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,])*)"
     #regex = r"(['\"\>])(\/[\.\/].+)(['\"\<])"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
@@ -220,7 +221,7 @@ sArgParser.add_argument('-qpdecode', help='Quoted-printable decode input once be
 sArgParser.add_argument('-unescape', metavar="<rounds>", help='Unescape slashes within input this many times before extracting FQDNs.')
 sArgParser.add_argument('-entities', help='Decode HTML entities within input this many times before extracting FQDNs.', action="store_true")
 sArgParser.add_argument('-search', metavar="<search engine>", help='Print a link for this address to one of these search pages: google, intelx, centralops (WHOIS)')
-sArgParser.add_argument('-sort', help='Sort te results.', action="store_true")
+sArgParser.add_argument('-sort', help='Sort the results.', action="store_true")
 
 aArguments=sArgParser.parse_args()
 

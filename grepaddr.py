@@ -172,8 +172,7 @@ def RelUrls(strInput):
     return lMatches
 
 def RelUrlsQuoted(strInput):
-    # Fix inclusion of HTML end tags and absolute URLS:
-    regex = r"(\W)(\.{0,2}\/([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,])*)"
+    regex = r"([^\w\<:\/])(\.{0,2}\/([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,])*)"
     #regex = r"(['\"\>])(\/[\.\/].+)(['\"\<])"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []

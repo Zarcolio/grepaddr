@@ -5,7 +5,7 @@ Because the script uses regexp, it's very common to get false positives for FQDN
 The options --resolve (FQDNs only) --iana and --private can be used to reduce the number of false positives.
 
 # Why grepaddr?
-Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. grepaddr can extract a large number of address types.
+Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. Grepaddr can extract a large number of address types.
 
 # Install
 Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. 
@@ -76,7 +76,7 @@ Want to extract all addresses and convert relative URLs starting at the root to 
 ```
 wget -qO - https://twitter.com|grepaddr --base https://twitter.com
 ```
-Want to extract addresses from a binary, uses it together with strings:
+Want to extract addresses from a binary, use it together with strings:
 ```
 string binary.ext|grepaddr
 ```

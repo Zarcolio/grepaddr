@@ -1,4 +1,6 @@
-# About [GrepAddr](https://github.com/Zarcolio/grepaddr) ![](https://img.shields.io/github/license/Zarcolio/grepaddr) ![](https://img.shields.io/github/stars/Zarcolio/grepaddr) ![](https://img.shields.io/github/forks/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues-closed-raw/Zarcolio/grepaddr)
+![](https://img.shields.io/github/license/Zarcolio/grepaddr) ![](https://img.shields.io/github/stars/Zarcolio/grepaddr) ![](https://img.shields.io/github/forks/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues-closed-raw/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues-pr/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues-pr-closed-raw/Zarcolio/grepaddr)
+
+# About [GrepAddr](https://github.com/Zarcolio/grepaddr) 
 GrepAddr takes input from stdin and extracts different kinds of addresses from stdin like URLs, IP addresses, e-mail addresses, MAC addresses and more.
 
 Because the script uses regexp, it's very common to get false positives for FQDNs.

@@ -1,14 +1,14 @@
-# About grepaddr
-Grepaddr takes input from stdin and extracts different kinds of addresses from stdin like URLs, IP addresses, e-mail addresses, MAC addresses and more.
+# About [GrepAddr](https://github.com/Zarcolio/grepaddr) ![](https://img.shields.io/github/license/Zarcolio/grepaddr) ![](https://img.shields.io/github/stars/Zarcolio/grepaddr) ![](https://img.shields.io/github/forks/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues/Zarcolio/grepaddr)
+GrepAddr takes input from stdin and extracts different kinds of addresses from stdin like URLs, IP addresses, e-mail addresses, MAC addresses and more.
 
 Because the script uses regexp, it's very common to get false positives for FQDNs.
 The options --resolve (FQDNs only) --iana and --private can be used to reduce the number of false positives.
 
-# Why grepaddr?
-Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. Grepaddr can extract a large number of address types.
+# Why use GrepAddr?
+Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. GrepAddr can extract a large number of address types.
 
 # Install
-Grepaddr should be able to run with a default Kali Linux installation without installing additional Python packages. 
+GrepAddr should be able to run with a default Kali Linux installation without installing additional Python packages. 
 Just run:
 ```
 git clone https://github.com/Zarcolio/grepaddr
@@ -23,7 +23,7 @@ usage: grepaddr [-h] [-fqdn] [-srv] [-email] [--port] [--iana] [--private] [--re
 [-ipv6] [-cidr6] [-mac] [-url] [-relurl] [--baseurl <url>] [--basetag] [-csv <file>] [-decode <rounds>] 
 [-unescape <rounds>]
 
-Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses
+Use GrepAddr to extract different kinds of addresses from stdin. If no arguments are given, addresses
 of all types are shown.
 
 optional arguments:
@@ -82,4 +82,7 @@ string binary.ext|grepaddr
 ```
 
 # Contribute?
-Do you have some usefull additions to the script, please send in a pull request to help make this script better or contact me @ [Twitter](https://twitter.com/zarcolio) :)
+Do you have some usefull additions to GrepAddr:
+
+* [![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](https://github.com/Zarcolio/grepaddr/pulls) 
+* [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/zarcolio.svg?style=social&label=Contact%20me)](https://twitter.com/zarcolio)

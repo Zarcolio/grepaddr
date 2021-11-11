@@ -7,7 +7,7 @@ Because the script uses regexp, it's very common to get false positives for FQDN
 The options --resolve (FQDNs only) --iana and --private can be used to reduce the number of false positives.
 
 # Why use GrepAddr?
-Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. GrepAddr can extract a large number of address types.
+Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. GrepAddr can extract a large number of address types. You can use GrepAddr when doing a pen test or CTF, or persuing a bug bounty.
 
 # Install
 GrepAddr should be able to run with a default Kali Linux installation without installing additional Python packages. 

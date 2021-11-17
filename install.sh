@@ -8,6 +8,7 @@ dir=$(pwd)
 	if [ $? -eq 127 ]
 	then
 		if [ $1 -eq "-auto" ]
+		then
 			cd .. 
 			git clone https://github.com/Zarcolio/2ulb
 			sudo python3 2ulb/2ulb.py 2ulb/2ulb.py

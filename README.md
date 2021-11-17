@@ -15,8 +15,14 @@ Just run:
 ```
 git clone https://github.com/Zarcolio/grepaddr
 cd grepaddr
-bash install.sh
+sudo bash install.sh
 ```
+
+When using the installer in an automated environment, use the following command for an automated installation:
+```
+bash install.sh -auto
+```
+
 If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)
 
 # Usage

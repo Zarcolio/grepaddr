@@ -8,7 +8,12 @@ dir=$(pwd)
 	if [ $? -eq 127 ]
 	then
 		if [ $1 -eq "-auto" ]
-			cd .. ; git clone https://github.com/Zarcolio/2ulb ; sudo python3 2ulb/2ulb.py 2ulb/2ulb.py ; cd $dir ; sudo 2ulb $scriptname; exit 0 ;;
+			cd .. 
+			git clone https://github.com/Zarcolio/2ulb
+			sudo python3 2ulb/2ulb.py 2ulb/2ulb.py
+			cd $dir
+			sudo 2ulb $scriptname
+			exit 0
 		else
 			while true; do
 				read -p "2ulb not found, install 2ulb? [y/n]: " yn

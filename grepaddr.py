@@ -13,8 +13,6 @@ import urllib
 import html
 import quopri
 
-requests.packages.urllib3.disable_warnings() 
-
 def signal_handler(sig, frame):
         print("\nCtrl-C detected, exiting...\n")
         sys.exit(0)
@@ -150,7 +148,7 @@ def Cidr6(strInput):
     return lMatches
 
 def Urls(strInput):
-    regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto|data\:)([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,~])*"
+    regex = r"(([a-zA-Z][a-zA-Z0-9+-.]*\:\/\/)|mailto|data\:)([a-zA-Z0-9\.\&\/\?\:@\+\-_=#%;,])*"
     matches = re.finditer(regex, strInput, re.IGNORECASE)
     lMatches = []
     for matchNum, match in enumerate(matches, start=1):
@@ -198,10 +196,6 @@ def BaseTag(strInput):
         lMatches.append(match.group(2))
     return lMatches
 
-def GetRequest(sUrl,sHeaders, sCookies, sProxies, sRedirect):
-    rGetOutput = requests.get(sUrl, headers=sHeaders, cookies=sCookies, proxies={"http": sProxies, "https": sProxies}, allow_redirects=sRedirect, verify=False)
-    return rGetOutput
-
 # Get some commandline arguments:
 sArgParser=argparse.ArgumentParser(description='Use grepaddr to extract different kinds of addresses from stdin. If no arguments are given, addresses of all types are shown.')
 sArgParser.add_argument('-fqdn', help='Extract fully qualified domain names.', action="store_true")
@@ -228,12 +222,6 @@ sArgParser.add_argument('-unescape', metavar="<rounds>", help='Unescape slashes 
 sArgParser.add_argument('-entities', help='Decode HTML entities within input this many times before extracting FQDNs.', action="store_true")
 sArgParser.add_argument('-search', metavar="<search engine>", help='Print a link for this address to one of these search pages: google, intelx, centralops (WHOIS)')
 sArgParser.add_argument('-sort', help='Sort the results.', action="store_true")
-sArgParser.add_argument('-get', help='Execute a GET request for URLs from stdin and search for addresses.', action="store_true")
-sArgParser.add_argument('-post', help='Execute a POST request for URLs from stdin and search for addresses.', action="store_true")
-sArgParser.add_argument('--headers', metavar="<headers>", help='Supply header to a GET/POST request. Use 1 "--header" per header.', default=None)
-sArgParser.add_argument('--cookies', metavar="<cookies>", help='Supply cookie to a GET/POST request. Use 1 "--cookie" per cookie.', default=None)
-sArgParser.add_argument('--proxies', metavar="<proxies>", help='Supply proxies to a GET/POST request.', default=None)
-sArgParser.add_argument('--redirect', metavar="<boolean>", help='Allow redirects, defaults to "True", use "False" to disable.', default=True)
 
 aArguments=sArgParser.parse_args()
 
@@ -281,232 +269,202 @@ if aArguments.private:
 
 x = 0
 dResults = {}
-
 #Read from standard input:
-lInput1=[]
 try:
     for strInput in sys.stdin:
-        lInput1.append(strInput)
+        strInput = strInput.rstrip()
+        iCountDecode = 0
+        # Default to never URL decode:
+        if not aArguments.decode:
+            decodingRounds = 0
+        else:
+            decodingRounds = int(aArguments.decode)
+    
+        iCountunescape = 0
+        # Default to never unescape:
+        if not aArguments.unescape:
+            unescapeRounds = 0
+        else:
+            unescapeRounds = int(aArguments.unescape)
+    
+    
+        # =========================
+        # Finish loop first:
+        # =========================
+        if aArguments.qpdecode:
+            strInput = quopri.decodestring(strInput).decode('utf-8', errors='ignore')
+
+        if aArguments.entities:
+            strInput = html.unescape(strInput)
+
+    
+        for iCountDecode in range(0, decodingRounds+1):
+            if iCountDecode>0:
+                strInput = urllib.parse.unquote(strInput)
+    
+            # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
+            if (decodingRounds == 0 or iCountDecode == decodingRounds) and (unescapeRounds == 0):       # <-- if no decoding is done or the last round has completed, but also if no unescaping is needed.
+                # Changes in this section should also be done in the unescape section !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                if aArguments.fqdn:
+                    lMatchesFqdn = Fqdn(strInput)
+                    for sFqdn in lMatchesFqdn:
+                        if aArguments.resolve:
+                            try:
+                                lResolvedFqdn = socket.gethostbyname(sFqdn)    # lResolvedFqdn is not used.
+                                dResults[sFqdn] = "FQDN;" + sFqdn
+                            except:
+                                pass
+                        else:
+                            if aArguments.iana:
+                                if EndsWithIanaTld(sFqdn):
+                                    dResults[sFqdn] = "FQDN;" + sFqdn
+        
+                            if aArguments.private:
+                                if EndsWithPrivateTld(sFqdn):
+                                    dResults[sFqdn] = "FQDN;" + sFqdn
+        
+                            if not aArguments.iana and not aArguments.private:
+                                dResults[sFqdn] = "FQDN;" + sFqdn
+    
+    
+        for iCountunescape in range(0, unescapeRounds + 1):
+            if iCountunescape > 0:
+                strInput = unescape_replace(strInput)
+    
+    
+            # To prevent remants in hostnames originating from escaped characters:
+            if unescapeRounds == 0 or iCountunescape == unescapeRounds:       # <-- if no decoding is done or the last round has completed.
+                if aArguments.fqdn:
+                    lMatchesFqdn = Fqdn(strInput)
+                    for sFqdn in lMatchesFqdn:
+                        if aArguments.resolve:
+                            try:
+                                lResolvedFqdn = socket.gethostbyname(sFqdn)  # lResolvedFqdn is not used.
+                                dResults[sFqdn] = "FQDN;" + sFqdn
+                            except:
+                                pass
+                        else:
+                            if aArguments.iana:
+                                if EndsWithIanaTld(sFqdn):
+                                    dResults[sFqdn] = "FQDN;" + sFqdn
+    
+                            if aArguments.private:
+                                if EndsWithPrivateTld(sFqdn):
+                                    dResults[sFqdn] = "FQDN;" + sFqdn
+    
+                            if not aArguments.iana and not aArguments.private:
+                                dResults[sFqdn] = "FQDN;" + sFqdn
+    
+            if aArguments.srv:
+                lMatchesSrv = Srv(strInput)
+                if aArguments.iana:
+                    for sSrv in lMatchesSrv:
+                        if EndsWithIanaTld(sSrv):
+                            dResults[sSrv] = "SRV;" + sSrv
+                else:
+                    for sSrv in lMatchesSrv:
+                        dResults[sSrv] = "SRV;" + sSrv
+    
+            if aArguments.mac:
+                lMatchesMac1 = MacAddress1(strInput)
+                for sMac1 in lMatchesMac1:
+                    dResults[sMac1] = "MAC;" + sMac1
+    
+                lMatchesMac2 = MacAddress2(strInput)
+                for sMac2 in lMatchesMac2:
+                    dResults[sMac2] = "MAC;" + sMac2
+    
+            if aArguments.cidr4:
+                lMatchesCidr4 = Cidr4(strInput)
+                for sCidr4 in lMatchesCidr4:
+                    dResults[sCidr4] = "IPv4 CIDR;" + sCidr4
+    
+            if aArguments.ipv4:
+                lMatchesIpV4 = IpV4(strInput)
+                for sIpV4 in lMatchesIpV4:
+                    if aArguments.cidr4:
+                        #if [s for s in lMatchesCidr4 if sIpV4 + "/" not in s] :
+                        dResults[sIpV4] = "IPv4;" + sIpV4
+                    else:
+                        dResults[sIpV4] = "IPv4;" + sIpV4
+    
+            if aArguments.cidr6:
+                lMatchesCidr6 = Cidr6(strInput)
+                for sCidr6 in lMatchesCidr6:
+                    dResults[sCidr6] = "IPv6 CIDR;" + sCidr6
+    
+            if aArguments.ipv6:
+                lMatchesIpV6 = IpV6(strInput)
+                for sIpV6 in lMatchesIpV6:
+                    if aArguments.cidr6:
+                        #if [s for s in lMatchesCidr6 if sIpV6 + "/" not in s] :
+                        dResults[sIpV6] = "IPv6;" + sIpV6
+                    else:
+                        dResults[sIpV6] = "IPv6;" + sIpV6
+            
+            if aArguments.url:
+                lMatchesUrl = Urls(strInput)
+                for sUrl in lMatchesUrl:
+                        dResults[sUrl] = "URL;" + sUrl
+            
+            if aArguments.url:
+                lMatchesUrl6 = UrlsIpV6(strInput)
+                for sUrl6 in lMatchesUrl6:
+                    dResults[sUrl6] = "URL;" + sUrl6
+    
+            if aArguments.relurl:
+                if aArguments.basetag:
+                    lMatchesBaseTagUrl = BaseTag(strInput)
+                    if len(lMatchesBaseTagUrl) > 0:
+                        sBase = lMatchesBaseTagUrl[0]
+    
+                lMatchesRelUrl = RelUrls(strInput)                                          # Always duplicate this code to RelUrlsQuoted below.
+                for sRelUrl in lMatchesRelUrl:
+                    if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":      # if relative URL starts at the root of the domain, but not starting with //
+                        sBase = aArguments.baseurl
+                    elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":    # if relative URL starts at the root of the scheme, starting with //
+                        sBaseFqdn = Fqdn(aArguments.baseurl)
+                        sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
+                    elif aArguments.basetag:
+                        try:
+                            if sBase:
+                                pass
+                        except:
+                            sBase = ""
+                    else:
+                        sBase = ""
+    
+                    dResults[sBase + sRelUrl] = "RELURL;" + sBase + sRelUrl
+    
+                lMatchesRelUrl = RelUrlsQuoted(strInput)
+                for sRelUrl in lMatchesRelUrl:
+                    if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":       # if relative URL starts at the root of the domain, but not starting with //
+                        sBase = aArguments.baseurl
+                    elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":     # if relative URL starts at the root of the scheme, starting with //
+                        sBaseFqdn = Fqdn(aArguments.baseurl)
+                        sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
+                    elif aArguments.basetag:
+                        try:
+                            if sBase:
+                                pass
+                        except:
+                            sBase = ""
+                    else:
+                        sBase = ""
+    
+                    dResults[sBase + sRelUrl] = "RELURL;" + sBase + sRelUrl
+                    
+            if aArguments.email:
+                lMatchesEmail = Email(strInput)
+                if aArguments.iana:
+                    for sEmail in lMatchesEmail:
+                        if EndsWithIanaTld(sEmail):
+                            dResults[sEmail] = "E-mail;" + sEmail
+                else:
+                    for sEmail in lMatchesEmail:
+                        dResults[sEmail] = "E-mail;" + sEmail
 except:
     pass
-sAllGetRequestResults = ""
-if aArguments.get:
-    if aArguments.headers:
-        if ";" in aArguments.headers:
-            dHeaders = dict(item.split(":") for item in aArguments.headers.split(";"))
-        else:
-            dHeaders = dict([aArguments.headers.split(":")])
-    else:
-        dHeaders = []
-
-    if aArguments.cookies:
-        if ";" in aArguments.cookies:
-            dCookies = dict(item.split(":") for item in aArguments.cookies.split(";"))
-        else:
-            dCookies = dict([aArguments.cookies.split(":")])
-    else:
-        dCookies = []
-        
-    for strInput in lInput1:
-        strInput = strInput.rstrip()
-        sGetRequestResults = GetRequest(strInput, dHeaders, dCookies, aArguments.proxies, aArguments.redirect)
-        sAllGetRequestResults += sGetRequestResults.text
-
-    lInput1 = [sAllGetRequestResults]
-
-lInput = lInput1
-
-for strInput in lInput:
-    strInput = strInput.rstrip()
-    iCountDecode = 0
-    # Default to never URL decode:
-    if not aArguments.decode:
-        decodingRounds = 0
-    else:
-        decodingRounds = int(aArguments.decode)
-
-    iCountunescape = 0
-    # Default to never unescape:
-    if not aArguments.unescape:
-        unescapeRounds = 0
-    else:
-        unescapeRounds = int(aArguments.unescape)
-
-    # =========================
-    # Finish loop first:
-    # =========================
-    if aArguments.qpdecode:
-        strInput = quopri.decodestring(strInput).decode('utf-8', errors='ignore')
-
-    if aArguments.entities:
-        strInput = html.unescape(strInput)
-
-
-    for iCountDecode in range(0, decodingRounds+1):
-        if iCountDecode>0:
-            strInput = urllib.parse.unquote(strInput)
-
-        # To prevent 2F in hostnames originating from http:// -> %2F when used with -decode:
-        if (decodingRounds == 0 or iCountDecode == decodingRounds) and (unescapeRounds == 0):       # <-- if no decoding is done or the last round has completed, but also if no unescaping is needed.
-            # Changes in this section should also be done in the unescape section !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if aArguments.fqdn:
-                lMatchesFqdn = Fqdn(strInput)
-                for sFqdn in lMatchesFqdn:
-                    if aArguments.resolve:
-                        try:
-                            lResolvedFqdn = socket.gethostbyname(sFqdn)    # lResolvedFqdn is not used.
-                            dResults[sFqdn] = "FQDN;" + sFqdn
-                        except:
-                            pass
-                    else:
-                        if aArguments.iana:
-                            if EndsWithIanaTld(sFqdn):
-                                dResults[sFqdn] = "FQDN;" + sFqdn
-    
-                        if aArguments.private:
-                            if EndsWithPrivateTld(sFqdn):
-                                dResults[sFqdn] = "FQDN;" + sFqdn
-    
-                        if not aArguments.iana and not aArguments.private:
-                            dResults[sFqdn] = "FQDN;" + sFqdn
-
-
-    for iCountunescape in range(0, unescapeRounds + 1):
-        if iCountunescape > 0:
-            strInput = unescape_replace(strInput)
-
-
-        # To prevent remants in hostnames originating from escaped characters:
-        if unescapeRounds == 0 or iCountunescape == unescapeRounds:       # <-- if no decoding is done or the last round has completed.
-            if aArguments.fqdn:
-                lMatchesFqdn = Fqdn(strInput)
-                for sFqdn in lMatchesFqdn:
-                    if aArguments.resolve:
-                        try:
-                            lResolvedFqdn = socket.gethostbyname(sFqdn)  # lResolvedFqdn is not used.
-                            dResults[sFqdn] = "FQDN;" + sFqdn
-                        except:
-                            pass
-                    else:
-                        if aArguments.iana:
-                            if EndsWithIanaTld(sFqdn):
-                                dResults[sFqdn] = "FQDN;" + sFqdn
-
-                        if aArguments.private:
-                            if EndsWithPrivateTld(sFqdn):
-                                dResults[sFqdn] = "FQDN;" + sFqdn
-
-                        if not aArguments.iana and not aArguments.private:
-                            dResults[sFqdn] = "FQDN;" + sFqdn
-
-        if aArguments.srv:
-            lMatchesSrv = Srv(strInput)
-            if aArguments.iana:
-                for sSrv in lMatchesSrv:
-                    if EndsWithIanaTld(sSrv):
-                        dResults[sSrv] = "SRV;" + sSrv
-            else:
-                for sSrv in lMatchesSrv:
-                    dResults[sSrv] = "SRV;" + sSrv
-
-        if aArguments.mac:
-            lMatchesMac1 = MacAddress1(strInput)
-            for sMac1 in lMatchesMac1:
-                dResults[sMac1] = "MAC;" + sMac1
-
-            lMatchesMac2 = MacAddress2(strInput)
-            for sMac2 in lMatchesMac2:
-                dResults[sMac2] = "MAC;" + sMac2
-
-        if aArguments.cidr4:
-            lMatchesCidr4 = Cidr4(strInput)
-            for sCidr4 in lMatchesCidr4:
-                dResults[sCidr4] = "IPv4 CIDR;" + sCidr4
-
-        if aArguments.ipv4:
-            lMatchesIpV4 = IpV4(strInput)
-            for sIpV4 in lMatchesIpV4:
-                if aArguments.cidr4:
-                    #if [s for s in lMatchesCidr4 if sIpV4 + "/" not in s] :
-                    dResults[sIpV4] = "IPv4;" + sIpV4
-                else:
-                    dResults[sIpV4] = "IPv4;" + sIpV4
-
-        if aArguments.cidr6:
-            lMatchesCidr6 = Cidr6(strInput)
-            for sCidr6 in lMatchesCidr6:
-                dResults[sCidr6] = "IPv6 CIDR;" + sCidr6
-
-        if aArguments.ipv6:
-            lMatchesIpV6 = IpV6(strInput)
-            for sIpV6 in lMatchesIpV6:
-                if aArguments.cidr6:
-                    #if [s for s in lMatchesCidr6 if sIpV6 + "/" not in s] :
-                    dResults[sIpV6] = "IPv6;" + sIpV6
-                else:
-                    dResults[sIpV6] = "IPv6;" + sIpV6
-        
-        if aArguments.url:
-            lMatchesUrl = Urls(strInput)
-            for sUrl in lMatchesUrl:
-                    dResults[sUrl] = "URL;" + sUrl
-        
-        if aArguments.url:
-            lMatchesUrl6 = UrlsIpV6(strInput)
-            for sUrl6 in lMatchesUrl6:
-                dResults[sUrl6] = "URL;" + sUrl6
-
-        if aArguments.relurl:
-            if aArguments.basetag:
-                lMatchesBaseTagUrl = BaseTag(strInput)
-                if len(lMatchesBaseTagUrl) > 0:
-                    sBase = lMatchesBaseTagUrl[0]
-
-            lMatchesRelUrl = RelUrls(strInput)                                          # Always duplicate this code to RelUrlsQuoted below.
-            for sRelUrl in lMatchesRelUrl:
-                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":      # if relative URL starts at the root of the domain, but not starting with //
-                    sBase = aArguments.baseurl
-                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":    # if relative URL starts at the root of the scheme, starting with //
-                    sBaseFqdn = Fqdn(aArguments.baseurl)
-                    sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
-                elif aArguments.basetag:
-                    try:
-                        if sBase:
-                            pass
-                    except:
-                        sBase = ""
-                else:
-                    sBase = ""
-
-                dResults[sBase + sRelUrl] = "RELURL;" + sBase + sRelUrl
-
-            lMatchesRelUrl = RelUrlsQuoted(strInput)
-            for sRelUrl in lMatchesRelUrl:
-                if aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] != "/":       # if relative URL starts at the root of the domain, but not starting with //
-                    sBase = aArguments.baseurl
-                elif aArguments.baseurl and sRelUrl[0] == "/" and sRelUrl[1] == "/":     # if relative URL starts at the root of the scheme, starting with //
-                    sBaseFqdn = Fqdn(aArguments.baseurl)
-                    sBase = aArguments.baseurl.replace("//" + sBaseFqdn[0], "")
-                elif aArguments.basetag:
-                    try:
-                        if sBase:
-                            pass
-                    except:
-                        sBase = ""
-                else:
-                    sBase = ""
-
-                dResults[sBase + sRelUrl] = "RELURL;" + sBase + sRelUrl
-                
-        if aArguments.email:
-            lMatchesEmail = Email(strInput)
-            if aArguments.iana:
-                for sEmail in lMatchesEmail:
-                    if EndsWithIanaTld(sEmail):
-                        dResults[sEmail] = "E-mail;" + sEmail
-            else:
-                for sEmail in lMatchesEmail:
-                    dResults[sEmail] = "E-mail;" + sEmail
 
 if aArguments.search:
     iMaxLength = len(sorted(dResults.keys(), key=len)[-1])
@@ -528,6 +486,8 @@ for item in dResults2:
     else:
         sIntelPrint = ""
     print(item + sIntelPrint)
+
+
 
 if aArguments.csv:
     fCsv = open(aArguments.csv, 'w', buffering=1)

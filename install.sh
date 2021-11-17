@@ -7,7 +7,7 @@ dir=$(pwd)
 2ulb 2&>/dev/null
 	if [ $? -eq 127 ]
 	then
-		if [ $1 -eq "-auto" ]
+		if [ "$1" = "-auto" ]
 		then
 			cd .. 
 			git clone https://github.com/Zarcolio/2ulb

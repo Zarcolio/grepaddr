@@ -88,6 +88,7 @@ Want to extract addresses from a binary, use it together with strings:
 string binary.ext|grepaddr
 ```
 When looking for URLs from the current user hive within Windows' registry, run these commands:
+
 Within Windows:
 ```
 reg export HKCU hkcu.reg

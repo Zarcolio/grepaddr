@@ -22,7 +22,7 @@ When using the installer in an automated environment, use the following command 
 sudo bash install.sh -auto
 ```
 
-If you're running into trouble running grepaddr, please drop me an issue and I'll try to fix it :)
+If you're running into trouble running GrepAddr, please drop me an issue and I'll try to fix it :)
 
 # Usage
 ```
@@ -98,7 +98,6 @@ Within your favorite Unix-like OS:
 dos2unix -f hkcu.reg
 strings hkcu.reg|grepaddr -url
 ```
-
 
 # Contribute?
 Do you have some usefull additions to GrepAddr:

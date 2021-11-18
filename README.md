@@ -87,7 +87,15 @@ Want to extract addresses from a binary, use it together with strings:
 ```
 string binary.ext|grepaddr
 ```
-
+When looking for URLs from the current user hive within Windows' registry, run these commands:
+Within Windows:
+```
+reg export HKCU hkcu.reg
+```
+Within your favorite Unix-like OS:
+```
+dos2unix -f hkcu.reg
+strings hkcu.reg|grepaddr -url
 # Contribute?
 Do you have some usefull additions to GrepAddr:
 

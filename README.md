@@ -17,7 +17,6 @@ git clone https://github.com/Zarcolio/grepaddr
 cd grepaddr
 sudo bash install.sh
 ```
-
 When using the installer in an automated environment, use the following command for an automated installation:
 ```
 sudo bash install.sh -auto

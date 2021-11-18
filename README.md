@@ -100,8 +100,6 @@ strings hkcu.reg|grepaddr -url
 ```
 
 
-
-
 # Contribute?
 Do you have some usefull additions to GrepAddr:
 

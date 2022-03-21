@@ -12,7 +12,7 @@ dir=$(pwd)
 			cd .. 
 			git clone https://github.com/Zarcolio/2ulb
 			sudo python3 2ulb/2ulb.py 2ulb/2ulb.py
-			cd "$dir"
+			cd "$dir" || exit
 			sudo 2ulb $scriptname
 			exit 0
 		else

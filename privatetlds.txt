@@ -1,12 +1,15 @@
 corp
+domain
 example
 home
 home.arpa
+host
 internal
 intranet
 invalid
 lan
 local
+localdomain
 mail
 private
 test

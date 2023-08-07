@@ -10,7 +10,7 @@ The options --resolve (FQDNs only) --iana and --private can be used to reduce th
 Several tools and scripts exist on the internet which similar functionality but usually only for a single address type, for example xurlsx, xpath-url-extraction and relative-url-extractor. Little/none of them can grep as many addresses type like GrepAddr can. You can use GrepAddr when doing a pen test or CTF, or when persuing a bug bounty.
 
 # Install
-GrepAddr should be able to run with a default Kali Linux installation without installing additional Python packages. 
+GrepAddr should be able to grep addreases with a default Kali Linux installation without installing additional Python packages. 
 Just run:
 ```
 git clone https://github.com/Zarcolio/grepaddr
@@ -59,7 +59,7 @@ optional arguments:
   -unslash <rounds>  Unescape slashes within input this many times before extracting FQDNs.
 ```
 # Examples
-It's really easy to extract all supported addresses from stdin, just run:
+It's really easy to grep all supported addresses from stdin, just run:
 ```
 wget -qO - https://twitter.com|grepaddr -csv twitter.csv
 ```
@@ -67,7 +67,7 @@ Want to extract addresses of certain type? Choose one of the options, for exampl
 ```
 wget -qO - https://nl.wikipedia.org/wiki/MAC-adres|grepaddr -mac
 ```
-Want to extract FQDNs with a private TLD, just run:
+Want to grep FQDNs with a private TLD, just run:
 ```
 wget -qO - https://serverfault.com/questions/17255/top-level-domain-domain-suffix-for-private-network|grepaddr -fqdn --private
 ```
@@ -75,7 +75,7 @@ Want to extract FQDNs and show only resolved FQDNs URLs needed to be decoded fir
 ```
 wget -qO - https://twitter.com|grepaddr -fqdn --resolve --decode 1
 ```
-Want to extract all addresses with the least chance of false positives without having to wait for resolving FQDNs:
+Want to grep all addresses with the least chance of false positives without having to wait for resolving FQDNs:
 ```
 wget -qO - https://twitter.com|grepaddr --iana
 ```

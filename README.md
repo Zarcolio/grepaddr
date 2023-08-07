@@ -1,7 +1,7 @@
 ![](https://img.shields.io/github/license/Zarcolio/grepaddr) ![](https://badges.pufler.dev/visits/Zarcolio/grepaddr) ![](https://img.shields.io/github/stars/Zarcolio/grepaddr) ![](https://img.shields.io/github/forks/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues-closed-raw/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues-pr/Zarcolio/grepaddr) ![](https://img.shields.io/github/issues-pr-closed-raw/Zarcolio/grepaddr)
 
 # About [GrepAddr](https://github.com/Zarcolio/grepaddr) 
-GrepAddr takes input from stdin and extracts different kinds of addresses from stdin like URLs, IP addresses, e-mail addresses, MAC addresses and more.
+GrepAddr takes input from stdin and extracts different kinds of addresses from stdin like URLs, IP addresses, e-mail addresses, MAC addresses and more. Essentially it's grep, but for interesting addresses. 
 
 Because the script uses regexp, it's very common to get false positives for FQDNs.
 The options --resolve (FQDNs only) --iana and --private can be used to reduce the number of false positives.
